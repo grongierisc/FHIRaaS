@@ -1,3 +1,10 @@
+## TODO 
+
+- [ ] HTTPS 
+- [ ] Affiner get tenants/:id
+- [ ] Ajouter l'interopérabilité (CCDA,HL7,SDA)
+- [ ] Ajouter les mots de passe par tenant
+
 ## intersystems-objectscript-template
 This is a template for InterSystems ObjectScript Github repository.
 The template goes also with a few files which let you immedietly compile your ObjecScript files in InterSystems IRIS Community Edition in a docker container
@@ -32,7 +39,6 @@ Open IRIS terminal:
 ```
 $ docker-compose exec iris iris session iris
 USER>zn "FHIRAAS"
-FHIRAAS>write ##class(PackageSample.ObjectScript).Test()
 ```
 ## How to start coding
 This repository is ready to code in VSCode with ObjectScript plugin.
@@ -54,16 +60,6 @@ The script in Installer.cls will import everything you place under /src into IRI
 The simplest dockerfile which starts IRIS and imports Installer.cls and then runs the Installer.setup method, which creates FHIRAAS Namespace and imports ObjectScript code from /src folder into it.
 Use the related docker-compose.yml to easily setup additional parametes like port number and where you map keys and host folders.
 Use .env/ file to adjust the dockerfile being used in docker-compose.
-
-### Dockerfile-zpm
-
-Dockerfile-zpm builds for you a container which contains ZPM package manager client so you are able to install packages from ZPM in this container.
-As an example of usage in installs webterminal
-
-### Dockerfile-web
-
-Dockerfile-web starts IRIS does the same what Dockerfile does and also sets up the web app programmatically
-
 
 ### .vscode/settings.json
 
