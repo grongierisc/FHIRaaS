@@ -1,9 +1,19 @@
 ; run installer to create namespace
-do $SYSTEM.OBJ.Load("/opt/irisapp/Installer.cls", "ck")
-set sc = ##class(App.Installer).setup() 
+Set namespace = "FHIRAAS"
+zw ##class(HS.HC.Util.Installer).InstallFoundation("FHIRAAS")
+
+; import source
+zn namespace
+zw $System.OBJ.ImportDir("/opt/irisapp/src/","*",,.errors,1)
+
+; zpm install openapi class definiton
+zpm
+install objectscript-openapi-definition
+q
 
 zn "%SYS"
 Do ##class(Security.Users).UnExpireUserPasswords("*")
 
-; call your initial methods here
+; Create web application ...
+zw ##class(Security.Applications).Import("/opt/irisapp/misc/application-export.xml")
 halt

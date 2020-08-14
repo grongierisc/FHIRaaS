@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationsExport>
+  <Applications>
+    <AutheEnabled>32</AutheEnabled>
+    <AutoCompile>true</AutoCompile>
+    <CookiePath>/fhiraas/v1/</CookiePath>
+    <CSPZENEnabled>true</CSPZENEnabled>
+    <CSRFToken>false</CSRFToken>
+    <DeepSeeEnabled>false</DeepSeeEnabled>
+    <DispatchClass>FHIRAAS.API.disp</DispatchClass>
+    <Enabled>true</Enabled>
+    <HyperEvent>0</HyperEvent>
+    <iKnowEnabled>false</iKnowEnabled>
+    <InbndWebServicesEnabled>true</InbndWebServicesEnabled>
+    <IsNameSpaceDefault>true</IsNameSpaceDefault>
+    <LockCSPName>true</LockCSPName>
+    <MatchRoles>
+      <MatchRolesItem>:%All</MatchRolesItem>
+    </MatchRoles>
+    <Name>/fhiraas/v1</Name>
+    <NameSpace>FHIRAAS</NameSpace>
+    <Recurse>true</Recurse>
+    <ServeFiles>1</ServeFiles>
+    <ServeFilesTimeout>3600</ServeFilesTimeout>
+    <Timeout>900</Timeout>
+    <TwoFactorEnabled>false</TwoFactorEnabled>
+    <Type>2</Type>
+    <UseCookies>2</UseCookies>
+  </Applications>
+</ApplicationsExport>
