@@ -38,7 +38,8 @@ ClassMethod getTenant(tenantId As %String) As %Stream.Object
 ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object) As %Stream.Object
 {
     set sc = $$$OK
-
+    New $namespace
+	
     Try {
         
 
@@ -51,7 +52,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         //Install a Foundation namespace and change to it
         $$$ThrowOnError(##class(HS.HC.Util.Installer).InstallFoundation(namespace))
 
-        zn namespace
+        Set $namespace=namespace
 
         // Install elements that are required for a FHIR-enabled namespace
         Do ##class(HS.FHIRServer.Installer).InstallNamespace()
@@ -60,11 +61,9 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         do ##class(HS.FHIRServer.Installer).InstallInstance(appKey, strategyClass, metadataConfigKey,"",0)
 	
 	} Catch Error {
-		zn "FHIRAAS"
+
         $$$ThrowOnError(Error.AsStatus())
 	}
-
-    zn "FHIRAAS"
 
     Quit ""
 }
@@ -75,8 +74,8 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
 ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 {
     set sc = $$$OK
-
-    zn "%SYS"
+    New $namespace
+    Set $namespace="%SYS"
 
     Try {
         
@@ -140,11 +139,9 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
         }
 
 	} Catch Error {
-		zn "FHIRAAS"
+		
         $$$ThrowOnError(Error.AsStatus())
 	}
-
-    zn "FHIRAAS"
 
     Quit ""
 }
