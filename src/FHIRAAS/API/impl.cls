@@ -1,11 +1,13 @@
 /// Iris Api to manage tenants<br/>
 /// Business logic class defined by OpenAPI in FHIRAAS.API.spec<br/>
 /// Created Aug 14, 2020 11:28:36
-Class FHIRAAS.API.impl Extends %REST.Impl [ ProcedureBlock ]
+Class FHIRAAS.API.impl Extends (%REST.Impl, %CSP.REST) [ ProcedureBlock ]
 {
 
 /// If ExposeServerExceptions is true, then details of internal errors will be exposed.
 Parameter ExposeServerExceptions = 1;
+
+Parameter CONTENTTYPEJSON As %String = "application/json";
 
 /// Return the list of available tenant on this Iris instance.
 ClassMethod getTenants() As %DynamicObject
@@ -16,9 +18,12 @@ ClassMethod getTenants() As %DynamicObject
     set tTenant = ""
     While $order(^%SYS("HealthShare","Instances",tTenant))'="" {
         set tTenant = $order(^%SYS("HealthShare","Instances",tTenant))
-        do:(tTenant'="FHIRAAS") dyna.%Push(tTenant)
+        if (tTenant'="FHIRAAS") {
+            do dyna.%Push(..GetEndpointsByTenant(tTenant))
+        }
     }
 
+    Set %response.ContentType = ..#CONTENTTYPEJSON
 
     Quit dyna
 }
@@ -28,7 +33,53 @@ ClassMethod getTenants() As %DynamicObject
 ///     tenantId, the tenant Id<br/>
 ClassMethod getTenant(tenantId As %String) As %Stream.Object
 {
-    Quit ""
+    set result = ""
+    New $namespace
+	
+    Try {
+        Set $namespace="%SYS"
+        $$$ThrowOnError(##Class(Config.Namespaces).Get(tenantId))
+        
+        set result= ..GetEndpointsByTenant(tenantId)
+
+    } Catch Error {
+
+        $$$ThrowOnError(Error.AsStatus())
+	}
+
+    Set %response.ContentType = ..#CONTENTTYPEJSON
+
+    Quit result
+}
+
+ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
+{
+    New $namespace
+    Set $namespace=tenantId
+
+    set result = {}
+    set result.tenantId = tenantId
+    set endpoints = []
+    set list = ##class(HS.FHIRServer.API.InteractionsStrategy).GetEndpointInfo()
+    
+    set ptr = 0
+    while $listnext(list, ptr, entry) {
+        set endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint($listget(entry, 1))
+        if endpoint '= "" {
+            do endpoints.%Push(endpoint)
+        }
+    }
+    set result.endpoints = endpoints
+
+
+    set pendingEndpoints = ##class(HS.FHIRServer.Config.Setup).ReturnPendingEndpoints(1)
+    if pendingEndpoints '= "" {
+        set result.pendingEndpoints = pendingEndpoints
+    } else {
+        set result.pendingEndpoints = []
+    }
+
+	return result
 }
 
 /// Create a tenant with an ID.<br/>
@@ -42,12 +93,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
 	
     Try {
         
-
-        Set namespace=tenantId
-
-        Set appKey = "/v1/fhir/"_tenantId_"/r4"
-        Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
-        Set metadataConfigKey = "HL7v40"
+        Set namespace=$zcvt(tenantId,"U")
 
         //Install a Foundation namespace and change to it
         $$$ThrowOnError(##class(HS.HC.Util.Installer).InstallFoundation(namespace))
@@ -58,7 +104,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
         // Install an instance of a FHIR Service into the current namespace
-        do ##class(HS.FHIRServer.Installer).InstallInstance(appKey, strategyClass, metadataConfigKey,"",0)
+        Return ..AddUpdateEndpointByTenant(namespace)
 	
 	} Catch Error {
 
@@ -68,12 +114,94 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
     Quit ""
 }
 
+/// Creates a new FHIRServer endpoint, or updates the existing one if already present.
+/// The endpoint creation can take >1min, so it will be done async and return a job
+/// reference that the client can poll for status
+ClassMethod AddUpdateEndpointByTenant(tenantId As %String) As %Status
+{
+
+    New $namespace
+    Set $namespace=tenantId
+
+    set result = ""
+
+	try {
+
+        //if config is empty, put a default one
+        if ($isobject(%request.Content)) {
+
+            set endpoint = {}.%FromJSON(%request.Content)
+
+
+        } else {
+            
+            set name = "fhir"
+            Set appKey = "/v1/fhiraas/"_tenantId_"/"_name_"/r4"
+            Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
+            Set metadataConfigKey = "HL7v40"
+
+            set endpoint = {}
+            set endpoint.name = appKey
+            set endpoint."service_config_data" = {}
+            set endpoint."service_config_data"."interactions_strategy_class" = strategyClass
+            set endpoint."service_config_data"."fhir_metadata_set" = metadataConfigKey
+
+        }
+		
+		
+		set name = endpoint.name
+		set interactionsStrategy = endpoint."service_config_data"."interactions_strategy_class"
+		set metadataSet = endpoint."service_config_data"."fhir_metadata_set"
+		
+
+		set output = {}
+		
+		//First check to see if the endpoint is currently being modified
+		set pending = ##class(HS.FHIRServer.Config.Setup).ReturnPendingEndpoints(0, name, interactionsStrategy, metadataSet)
+		if $isobject(pending) {
+			set output.job = pending.%Get(0)
+			return ..EmitResult(output)
+		}
+				
+		if ' ##class(HS.FHIRServer.ServiceAdmin).EndpointExists(name) {
+			//Note - currently Async call can't pass in objects, and the service config object is too long when serialized, so
+			//we can't install and configure an endpoint in the same request *yet*. 
+			set jobKey = ##class(HS.FHIRServer.Config.Setup).RunInBackgroundAndReturnJobKey("HS.FHIRServer.Installer", "InstallInstance", name, interactionsStrategy, metadataSet)
+			set job = ##class(HS.FHIRServer.Config.Setup).JobRecordToJson(##class(HS.FHIRServer.Config.Setup).GetJobRecordFromKey(jobKey))
+			set output.job = job
+		}
+		else {
+			set strategy = ##class(HS.FHIRServer.API.InteractionsStrategy).GetStrategyForEndpoint(name)
+			
+			set configData = ##class(HS.FHIRServer.API.ConfigData).%New()
+			$$$ThrowOnError(configData.%JSONImport(endpoint."service_config_data"))
+			
+			do strategy.SaveServiceConfigData(configData)
+			
+			set cspConfig = ##class(HS.Util.RESTCSPConfig).URLIndexOpen(endpoint.name)
+			set cspConfig.ServiceConfigName = endpoint."csp_config"."service_config_name"
+			set cspConfig.OAuthClientName = endpoint."csp_config"."oauth_client_name"
+			$$$ThrowOnError(cspConfig.%Save())
+			
+			do strategy.SetEnabled(name, endpoint.enabled)
+			
+			set output.endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint(name)
+		}
+
+		Return ..EmitResult(output)
+	}
+	catch ex {
+			$$$ThrowOnError(ex.AsStatus())
+		}
+	return result
+}
+
 /// Delete a tenant with an ID.<br/>
 /// The method arguments hold values for:<br/>
 ///     tenantId, the tenant Id<br/>
 ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 {
-    set sc = $$$OK
+
     New $namespace
     Set $namespace="%SYS"
 
@@ -144,6 +272,19 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 	}
 
     Quit ""
+}
+
+/// Prints <var>pPayload</var> if it is not empty, else sets the response status to be 'No Content' </br>
+ClassMethod EmitResult(pPayload As %DynamicAbstractObject = "") As %DynamicAbstractObject
+{
+	#dim %response As %CSP.Response
+	If pPayload = "" {
+		Set %response.Status = ..#HTTP204NOCONTENT
+	} Else {
+		Set %response.ContentType = ..#CONTENTTYPEJSON
+		return pPayload
+	}
+    Return {}
 }
 
 }
