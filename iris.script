@@ -1,3 +1,4 @@
+zn "HSLIB"
 ; run installer to create namespace
 Set namespace = "FHIRAAS"
 zw ##class(HS.HC.Util.Installer).InstallFoundation("FHIRAAS")
