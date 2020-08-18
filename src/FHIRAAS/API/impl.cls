@@ -103,8 +103,17 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         // Install elements that are required for a FHIR-enabled namespace
         Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
+        Set name = "fhir"
+        Set appKey = "/v1/fhiraas/"_tenantId_"/"_name_"/r4"
+        Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
+        Set metadataConfigKey = "HL7v40"
+
         // Install an instance of a FHIR Service into the current namespace
-        Return ..AddUpdateEndpointByTenant(namespace)
+        set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("HS.FHIRServer.Installer","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
+        
+        Set $namespace="FHIRAAS"
+        Set %response.ContentType = ..#CONTENTTYPEJSON
+        Return ##class(FHIRAAS.API.Utils).GetJob(jobKey)
 	
 	} Catch Error {
 
