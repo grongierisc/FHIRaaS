@@ -103,11 +103,110 @@
           }
         }
       }
+    },
+    "/tenants/{tenantId}/{endpointId}": {
+      "get": {
+        "summary": "Returns a tenant by ID.",
+        "operationId": "getEndpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenantId",
+            "required": true,
+            "type": "string",
+            "description": "the tenant Id"
+          },
+          {
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "type": "string",
+            "description": "the endpoint Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Create a endpoint with an ID.",
+        "operationId": "putEndpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenantId",
+            "required": true,
+            "type": "string",
+            "description": "the tenant Id"
+          },
+          {
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "type": "string",
+            "description": "the endpoint Id"
+          },
+          {
+            "in": "body",
+            "name": "tenantInformations",
+            "schema": {
+              "$ref": "#/definitions/CreateTenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a endpoint with an ID.",
+        "operationId": "deleteEndpoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenantId",
+            "required": true,
+            "type": "string",
+            "description": "the tenant Id"
+          },
+          {
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "type": "string",
+            "description": "the endpoint Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
     "CreateTenant": {
-      "type":"object",
+      "type": "object",
       "properties": {
         "rootPassword": {
           "type": "string"
@@ -115,7 +214,7 @@
       }
     },
     "Tenant": {
-      "type":"object",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string"

@@ -1,13 +1,15 @@
 /// Iris Api to manage tenants<br/>
 /// Business logic class defined by OpenAPI in FHIRAAS.API.spec<br/>
-/// Created Aug 14, 2020 11:28:36
-Class FHIRAAS.API.impl Extends (%REST.Impl, %CSP.REST) [ ProcedureBlock ]
+/// Updated Aug 19, 2020 18:31:44
+Class FHIRAAS.API.impl Extends %REST.Impl [ ProcedureBlock ]
 {
 
 /// If ExposeServerExceptions is true, then details of internal errors will be exposed.
 Parameter ExposeServerExceptions = 1;
 
 Parameter CONTENTTYPEJSON As %String = "application/json";
+
+Parameter HTTP204NOCONTENT As %String = "204 No Content";
 
 /// Return the list of available tenant on this Iris instance.
 ClassMethod getTenants() As %DynamicObject
@@ -19,7 +21,7 @@ ClassMethod getTenants() As %DynamicObject
     While $order(^%SYS("HealthShare","Instances",tTenant))'="" {
         set tTenant = $order(^%SYS("HealthShare","Instances",tTenant))
         if (tTenant'="FHIRAAS") {
-            do dyna.%Push(..GetEndpointsByTenant(tTenant))
+            do dyna.%Push(##class(FHIRAAS.API.Utils).GetEndpointsByTenant(tTenant))
         }
     }
 
@@ -37,10 +39,9 @@ ClassMethod getTenant(tenantId As %String) As %Stream.Object
     New $namespace
 	
     Try {
-        Set $namespace="%SYS"
-        $$$ThrowOnError(##Class(Config.Namespaces).Get(tenantId))
+        $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
         
-        set result= ..GetEndpointsByTenant(tenantId)
+        set result= ##class(FHIRAAS.API.Utils).GetEndpointsByTenant(tenantId)
 
     } Catch Error {
 
@@ -50,36 +51,6 @@ ClassMethod getTenant(tenantId As %String) As %Stream.Object
     Set %response.ContentType = ..#CONTENTTYPEJSON
 
     Quit result
-}
-
-ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
-{
-    New $namespace
-    Set $namespace=tenantId
-
-    set result = {}
-    set result.tenantId = tenantId
-    set endpoints = []
-    set list = ##class(HS.FHIRServer.API.InteractionsStrategy).GetEndpointInfo()
-    
-    set ptr = 0
-    while $listnext(list, ptr, entry) {
-        set endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint($listget(entry, 1))
-        if endpoint '= "" {
-            do endpoints.%Push(endpoint)
-        }
-    }
-    set result.endpoints = endpoints
-
-
-    set pendingEndpoints = ##class(HS.FHIRServer.Config.Setup).ReturnPendingEndpoints(1)
-    if pendingEndpoints '= "" {
-        set result.pendingEndpoints = pendingEndpoints
-    } else {
-        set result.pendingEndpoints = []
-    }
-
-	return result
 }
 
 /// Create a tenant with an ID.<br/>
@@ -100,7 +71,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         //Map Interop
         $$$ThrowOnError(##class(FHIRAAS.API.Utils).MapFHIRAASForNamespace(namespace))
 
-        Return ..addEndpoint(tenantId,"endpoint")
+        Return ..putEndpoint(tenantId,"endpoint")
 	
 	} Catch Error {
 
@@ -110,39 +81,24 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
     Quit ""
 }
 
-ClassMethod addEndpoint(tenantId As %String, endpoint As %String) As %Stream.Object
+/// Delete a endpoint with an ID.<br/>
+/// The method arguments hold values for:<br/>
+///     tenantId, the tenant Id<br/>
+///     endpointId, the endpoint Id<br/>
+ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Stream.Object
 {
-    New $namespace
-    Set $namespace=tenantId
-
-    // Install elements that are required for a FHIR-enabled namespace
-    Do ##class(HS.FHIRServer.Installer).InstallNamespace()
-
-    //Init default interop
-    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Init(endpoint))
-    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Add(endpoint))
-
-    Set appKey = "/v1/fhiraas/"_tenantId_"/fhir/r4/"_endpoint
-    Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
-    Set metadataConfigKey = "HL7v40"
-
-    // Install an instance of a FHIR Service into the current namespace
-    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("HS.FHIRServer.Installer","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
     
-    Set $namespace="FHIRAAS"
-    Set %response.ContentType = ..#CONTENTTYPEJSON
-    Return ##class(FHIRAAS.API.Utils).GetJob(jobKey)
-}
+    $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
 
-ClassMethod deleteEndpoint(tenantId As %String, endpoint As %String, delete As %Boolean = 1) As %Stream.Object
-{
     New $namespace
     Set $namespace=tenantId
+
+    set delete = 1
 
     // Install elements that are required for a FHIR-enabled namespace
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
-    Set appKey = "/v1/fhiraas/"_tenantId_"/fhir/r4/"_endpoint
+    Set appKey = ##class(FHIRAAS.API.Utils).GetAppKey(tenantId,endpointId)
 
     // Install an instance of a FHIR Service into the current namespace
     do ##class(HS.FHIRServer.Installer).UninstallInstance(appKey,delete)
@@ -239,6 +195,73 @@ ClassMethod EmitResult(pPayload As %DynamicAbstractObject = "") As %DynamicAbstr
 		return pPayload
 	}
     Return {}
+}
+
+/// Returns a tenant by ID.<br/>
+/// The method arguments hold values for:<br/>
+///     tenantId, the tenant Id<br/>
+///     endpointId, the endpoint Id<br/>
+ClassMethod getEndpoint(tenantId As %String, endpointId As %String) As %Stream.Object
+{
+    $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
+
+    New $namespace
+    Set $namespace=tenantId
+
+    Set appKey = ##class(FHIRAAS.API.Utils).GetAppKey(tenantId,endpointId)
+
+    set result = {}
+    set list = ##class(HS.FHIRServer.API.InteractionsStrategy).GetEndpointInfo()
+    
+    set ptr = 0
+    while $listnext(list, ptr, entry) {
+        set endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint($listget(entry, 1))
+        if endpoint '= "" {
+            set:(endpoint.name=appKey) result = endpoint
+        }
+    }
+
+    #dim pendingEndpoints as %DynamicArray
+    set pendingEndpoints = ##class(FHIRAAS.API.Utils).ReturnPendingEndpoints(0)
+    if pendingEndpoints '= "" {
+        set iterator = pendingEndpoints.%GetIterator()
+        while iterator.%GetNext(.key,.value) {
+        	set:(value.name=appKey) result = value
+        }
+    }
+    Set %response.ContentType = ..#CONTENTTYPEJSON
+	return result
+}
+
+/// Create a endpoint with an ID.<br/>
+/// The method arguments hold values for:<br/>
+///     tenantId, the tenant Id<br/>
+///     endpointId, the endpoint Id<br/>
+///     tenantInformations<br/>
+ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInformations As %Stream.Object) As %Stream.Object
+{
+    $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
+
+    New $namespace
+    Set $namespace=tenantId
+
+    // Install elements that are required for a FHIR-enabled namespace
+    Do ##class(HS.FHIRServer.Installer).InstallNamespace()
+
+    //Init default interop
+    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Init(endpointId))
+    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Add(endpointId))
+
+    Set appKey = ##class(FHIRAAS.API.Utils).GetAppKey(tenantId,endpointId)
+    Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
+    Set metadataConfigKey = "HL7v40"
+
+    // Install an instance of a FHIR Service into the current namespace
+    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.API.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
+    
+    Set $namespace="FHIRAAS"
+    Set %response.ContentType = ..#CONTENTTYPEJSON
+    Return ##class(FHIRAAS.API.Utils).GetJob(jobKey)
 }
 
 }
