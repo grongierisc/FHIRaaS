@@ -260,6 +260,7 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		Set restConfigObj = ##class(HS.Util.RESTCSPConfig).URLIndexOpen(pAppKey)
 		If '$IsObject($Get(restConfigObj)) {
 			Set restConfigObj = ##class(HS.Util.RESTCSPConfig).%New()
+			Set restConfigObj.ServiceConfigName = "HS.FHIRServer.Interop.Service"
 			Set restConfigObj.URL = pAppKey
 		}
 		if pOAuthClientName'="" {
