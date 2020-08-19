@@ -89,7 +89,6 @@ ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
 ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object) As %Stream.Object
 {
     set sc = $$$OK
-    New $namespace
 	
     Try {
         
@@ -98,22 +97,10 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         //Install a Foundation namespace and change to it
         $$$ThrowOnError(##class(HS.HC.Util.Installer).InstallFoundation(namespace))
 
-        Set $namespace=namespace
+        //Map Interop
+        $$$ThrowOnError(##class(FHIRAAS.API.Utils).MapFHIRAASForNamespace(namespace))
 
-        // Install elements that are required for a FHIR-enabled namespace
-        Do ##class(HS.FHIRServer.Installer).InstallNamespace()
-
-        Set name = "fhir"
-        Set appKey = "/v1/fhiraas/"_tenantId_"/"_name_"/r4"
-        Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
-        Set metadataConfigKey = "HL7v40"
-
-        // Install an instance of a FHIR Service into the current namespace
-        set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("HS.FHIRServer.Installer","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
-        
-        Set $namespace="FHIRAAS"
-        Set %response.ContentType = ..#CONTENTTYPEJSON
-        Return ##class(FHIRAAS.API.Utils).GetJob(jobKey)
+        Return ..addEndpoint(tenantId,"endpoint")
 	
 	} Catch Error {
 
@@ -123,86 +110,44 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
     Quit ""
 }
 
-/// Creates a new FHIRServer endpoint, or updates the existing one if already present.
-/// The endpoint creation can take >1min, so it will be done async and return a job
-/// reference that the client can poll for status
-ClassMethod AddUpdateEndpointByTenant(tenantId As %String) As %Status
+ClassMethod addEndpoint(tenantId As %String, endpoint As %String) As %Stream.Object
 {
-
     New $namespace
     Set $namespace=tenantId
 
-    set result = ""
+    // Install elements that are required for a FHIR-enabled namespace
+    Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
-	try {
+    //Init default interop
+    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Init(endpoint))
+    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Add(endpoint))
 
-        //if config is empty, put a default one
-        if ($isobject(%request.Content)) {
+    Set appKey = "/v1/fhiraas/"_tenantId_"/fhir/r4/"_endpoint
+    Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
+    Set metadataConfigKey = "HL7v40"
 
-            set endpoint = {}.%FromJSON(%request.Content)
+    // Install an instance of a FHIR Service into the current namespace
+    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("HS.FHIRServer.Installer","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
+    
+    Set $namespace="FHIRAAS"
+    Set %response.ContentType = ..#CONTENTTYPEJSON
+    Return ##class(FHIRAAS.API.Utils).GetJob(jobKey)
+}
 
+ClassMethod deleteEndpoint(tenantId As %String, endpoint As %String, delete As %Boolean = 1) As %Stream.Object
+{
+    New $namespace
+    Set $namespace=tenantId
 
-        } else {
-            
-            set name = "fhir"
-            Set appKey = "/v1/fhiraas/"_tenantId_"/"_name_"/r4"
-            Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
-            Set metadataConfigKey = "HL7v40"
+    // Install elements that are required for a FHIR-enabled namespace
+    Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
-            set endpoint = {}
-            set endpoint.name = appKey
-            set endpoint."service_config_data" = {}
-            set endpoint."service_config_data"."interactions_strategy_class" = strategyClass
-            set endpoint."service_config_data"."fhir_metadata_set" = metadataConfigKey
+    Set appKey = "/v1/fhiraas/"_tenantId_"/fhir/r4/"_endpoint
 
-        }
-		
-		
-		set name = endpoint.name
-		set interactionsStrategy = endpoint."service_config_data"."interactions_strategy_class"
-		set metadataSet = endpoint."service_config_data"."fhir_metadata_set"
-		
-
-		set output = {}
-		
-		//First check to see if the endpoint is currently being modified
-		set pending = ##class(HS.FHIRServer.Config.Setup).ReturnPendingEndpoints(0, name, interactionsStrategy, metadataSet)
-		if $isobject(pending) {
-			set output.job = pending.%Get(0)
-			return ..EmitResult(output)
-		}
-				
-		if ' ##class(HS.FHIRServer.ServiceAdmin).EndpointExists(name) {
-			//Note - currently Async call can't pass in objects, and the service config object is too long when serialized, so
-			//we can't install and configure an endpoint in the same request *yet*. 
-			set jobKey = ##class(HS.FHIRServer.Config.Setup).RunInBackgroundAndReturnJobKey("HS.FHIRServer.Installer", "InstallInstance", name, interactionsStrategy, metadataSet)
-			set job = ##class(HS.FHIRServer.Config.Setup).JobRecordToJson(##class(HS.FHIRServer.Config.Setup).GetJobRecordFromKey(jobKey))
-			set output.job = job
-		}
-		else {
-			set strategy = ##class(HS.FHIRServer.API.InteractionsStrategy).GetStrategyForEndpoint(name)
-			
-			set configData = ##class(HS.FHIRServer.API.ConfigData).%New()
-			$$$ThrowOnError(configData.%JSONImport(endpoint."service_config_data"))
-			
-			do strategy.SaveServiceConfigData(configData)
-			
-			set cspConfig = ##class(HS.Util.RESTCSPConfig).URLIndexOpen(endpoint.name)
-			set cspConfig.ServiceConfigName = endpoint."csp_config"."service_config_name"
-			set cspConfig.OAuthClientName = endpoint."csp_config"."oauth_client_name"
-			$$$ThrowOnError(cspConfig.%Save())
-			
-			do strategy.SetEnabled(name, endpoint.enabled)
-			
-			set output.endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint(name)
-		}
-
-		Return ..EmitResult(output)
-	}
-	catch ex {
-			$$$ThrowOnError(ex.AsStatus())
-		}
-	return result
+    // Install an instance of a FHIR Service into the current namespace
+    do ##class(HS.FHIRServer.Installer).UninstallInstance(appKey,delete)
+    
+    Quit ""
 }
 
 /// Delete a tenant with an ID.<br/>

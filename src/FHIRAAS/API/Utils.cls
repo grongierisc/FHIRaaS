@@ -29,6 +29,19 @@ ClassMethod GetJob(jobKey As %String) As %DynamicObject
     Quit result
 }
 
+ClassMethod MapFHIRAASForNamespace(pNS, pActivate = 1) As %Status
+{
+	try {
+		Set tSC=$$$OK
+		Set tSC=##class(HS.HC.Util.Installer).AddClassMappings("",pNS,"FHIRAAS,Interop","FHIRAAS")
+		Quit:$$$ISERR(tSC)
+		Do:pActivate ##class(HS.HC.Util.Installer).ActivateConfiguration(,pNS)
+	} Catch ex {
+		Set tSC= ex.AsStatus()
+	}
+	Quit tSC
+}
+
 ClassMethod CleanCompleted() As %Status
 {
 	set records = ..GetJobRecords()
