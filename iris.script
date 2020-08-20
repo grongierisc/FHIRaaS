@@ -5,7 +5,7 @@ zw ##class(HS.HC.Util.Installer).InstallFoundation("FHIRAAS")
 
 ; import source
 zn namespace
-zw $System.OBJ.ImportDir("/opt/irisapp/src/","*",,.errors,1)
+zw $System.OBJ.ImportDir("/opt/irisapp/src/","*","cdk",.errors,1)
 
 ; zpm install openapi class definiton
 zpm
