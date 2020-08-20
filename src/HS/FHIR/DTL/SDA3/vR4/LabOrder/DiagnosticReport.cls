@@ -38,7 +38,7 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 </if>
 <if condition='&apos;##class(HS.FHIR.DTL.Util.Element.Object).Defined(source, "OrderCategory")' >
 <true>
-<assign value='"http://hl7.org/fhir/v2/0074"' property='target.category.(1).coding.(1).system' action='set' >
+<assign value='"http://terminology.hl7.org/CodeSystem/v2-0074"' property='target.category.(1).coding.(1).system' action='set' >
 <annotation> Identity of the terminology system
  --- This target is one field within a CodeableConcept object assigned to the target DiagnosticReport:category.    </annotation>
 </assign>
@@ -105,7 +105,7 @@ Note: If results exist, this is where the ServiceRequest resource is created. Th
 </assign>
 </true>
 </if>
-<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).FillerId(source.FillerId)' property='value' action='set' />
+<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).FillerId(source.FillerId, .aux)' property='value' action='set' />
 <assign value='target.identifier.Count()+1' property='index' action='set' />
 <if condition='value&apos;=""' >
 <true>
@@ -159,18 +159,15 @@ Note: If results exist, this is where the ServiceRequest resource is created. Th
 </if>
 </true>
 </if>
-<assign value='"Default"' property='target.code.text' action='set' />
 <if condition='##class(HS.FHIR.DTL.Util.Element.Object).Defined(source, "OrderItem")' >
 <true>
 <assign value='##class(HS.FHIR.DTL.vR4.Model.Datatype.CodeableConcept).%New()' property='tmp' action='set' />
 <assign value='aux("transformer").GetDTL(source.OrderItem, "HS.FHIR.DTL.SDA3.vR4.CodeTableTranslated.CodeableConcept")' property='DTL' action='set' />
-<assign value='"Default"' property='target.code.text' action='set' />
 <if condition='DTL&apos;=""' >
 <true>
 <assign value='$classmethod(DTL, "Transform", source.OrderItem, .tmp, .aux)' property='status' action='set' />
 <if condition='tmp&apos;=""' >
 <true>
-<assign value='"Default"' property='tmp.text' action='set' />
 <assign value='tmp' property='target.code' action='set' >
 <annotation> Name/Code for this diagnostic report
  --- Although not required according to the HS.SDA3.LabOrder class definition, in practice, the OrderItem property always contains a value.
@@ -178,13 +175,15 @@ Note: If results exist, this is where the ServiceRequest resource is created. Th
  --- SDA does not restrict code values to a particular set.    </annotation>
 </assign>
 </true>
+</if>
+</true>
+</if>
+</true>
 <false>
-<assign value='"Default"' property='target.code.text' action='set' />
+<assign value='##class(HS.FHIR.DTL.vR4.Model.Datatype.CodeableConcept).%New()' property='tmp' action='set' />
+<assign value='"Default"' property='tmp.text' action='set' />
+<assign value='tmp' property='target.code' action='set' />
 </false>
-</if>
-</true>
-</if>
-</true>
 </if>
 <if condition='##class(HS.FHIR.DTL.Util.Element.Object).Defined(source, "ParentResultObservation")' >
 <true>
@@ -246,7 +245,7 @@ Note: If results exist, this is where the ServiceRequest resource is created. Th
 </if>
 </true>
 </if>
-<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).PlacerId(source.PlacerId)' property='value' action='set' />
+<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).PlacerId(source.PlacerId, .aux)' property='value' action='set' />
 <assign value='target.identifier.Count()+1' property='index' action='set' />
 <if condition='value&apos;=""' >
 <true>

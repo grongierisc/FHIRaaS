@@ -733,7 +733,7 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 </if>
 </true>
 </if>
-<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).FillerId(source.FillerId)' property='value' action='set' />
+<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).FillerId(source.FillerId, .aux)' property='value' action='set' />
 <assign value='target.identifier.Count()+1' property='index' action='set' />
 <if condition='value&apos;=""' >
 <true>
@@ -1042,7 +1042,7 @@ XData DTL [ XMLNamespace = "http://www.intersystems.com/dtl" ]
 </if>
 </true>
 </if>
-<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).PlacerId(source.PlacerId)' property='value' action='set' />
+<assign value='##class(HS.FHIR.DTL.Util.SDA3.Handler.Order).PlacerId(source.PlacerId, .aux)' property='value' action='set' />
 <assign value='target.identifier.Count()+1' property='index' action='set' />
 <if condition='value&apos;=""' >
 <true>
