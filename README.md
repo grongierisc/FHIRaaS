@@ -15,9 +15,9 @@ All can be done throw REST endpoint defined in misc/iris-api-operations.json
 # Getting Started
 1. Build this project, cf Build
 2. The endpoint is : http://localhost:52773/fhiraas/v1/tenants
-3. Create a tenant : POST http://localhost:52773/fhiraas/v1/tenants/<<tenantName>>
-4. Tenant inforamtion : GET http://localhost:52773/fhiraas/v1/tenants/<<tenantName>>
-5. The endpoint of the tenant is here : http://localhost:52773/v1/fhiraas/<<tenantName>>/fhir/r4/endpoint
+3. Create a tenant : POST http://localhost:52773/fhiraas/v1/tenants/{tenantName}
+4. Tenant inforamtion : GET http://localhost:52773/fhiraas/v1/tenants/{tenantName}
+5. The endpoint of the tenant is here : http://localhost:52773/v1/fhiraas/{tenantName}/fhir/r4/endpoint
 
 # Build 
 Run the server
@@ -35,21 +35,21 @@ When you will create a tenant you will recive this kind of response
     "job_key": "NjczfHwx",
     "status": "running",
     "type": "endpoint",
-    "name": "/v1/fhiraas/<tenantName>/fhir/r4/endpoint"
+    "name": "/v1/fhiraas/{tenantName}/fhir/r4/endpoint"
 }
 ```
 This mean the endpoint is running for creation.
-To check if the endpoint is still in creation GET http://localhost:52773/fhiraas/v1/tenants/<<tenantName>>
+To check if the endpoint is still in creation GET http://localhost:52773/fhiraas/v1/tenants/{tenantName}
 ```json
 {
-    "tenantId": "<tenantName>",
+    "tenantId": "{tenantName}",
     "endpoints": [],
     "pendingEndpoints": [
         {
             "job_key": "NjczfHwx",
             "status": "running",
             "type": "endpoint",
-            "name": "/v1/fhiraas/<tenantName>/fhir/r4/endpoint"
+            "name": "/v1/fhiraas/{tenantName}/fhir/r4/endpoint"
         }
     ]
 }
@@ -57,10 +57,10 @@ To check if the endpoint is still in creation GET http://localhost:52773/fhiraas
 When over endpoints array will be populated :
 ```json
 {
-    "tenantId": "<tenantName>",
+    "tenantId": "{tenantName}",
     "endpoints": [
         {
-            "name": "/v1/fhiraas/<tenantName>/fhir/r4/endpoint",
+            "name": "/v1/fhiraas/{tenantName}/fhir/r4/endpoint",
             "enabled": true,
             "service_config_data": {
                 "fhir_metadata_set": "HL7v40",
