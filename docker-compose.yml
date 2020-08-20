@@ -9,9 +9,8 @@ services:
       - 51773
       - 52773:52773
       - 53773
-    #command: --up false
-    environment: 
-      ISC_DATA_DIRECTORY: /external/conf
+    #environment: 
+      #ISC_DATA_DIRECTORY: /external/conf
     volumes:
       - ./:/irisdev/app
       - ./share/:/tmp/share
