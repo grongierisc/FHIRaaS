@@ -15,9 +15,9 @@ All can be done throw REST endpoint defined in misc/iris-api-operations.json
 # Getting Started
 1. Build this project, cf Build
 2. The endpoint is : http://localhost:52773/fhiraas/v1/tenants
-3. Create a tenant : POST http://localhost:52773/fhiraas/v1/tenants/<tenantName>
-4. Tenant inforamtion : GET http://localhost:52773/fhiraas/v1/tenants/<tenantName>
-5. The endpoint of the tenant is here : http://localhost:52773/v1/fhiraas/<tenantName>/fhir/r4/endpoint
+3. Create a tenant : POST http://localhost:52773/fhiraas/v1/tenants/<<tenantName>>
+4. Tenant inforamtion : GET http://localhost:52773/fhiraas/v1/tenants/<<tenantName>>
+5. The endpoint of the tenant is here : http://localhost:52773/v1/fhiraas/<<tenantName>>/fhir/r4/endpoint
 
 # Build 
 Run the server
@@ -39,7 +39,7 @@ When you will create a tenant you will recive this kind of response
 }
 ```
 This mean the endpoint is running for creation.
-To check if the endpoint is still in creation GET http://localhost:52773/fhiraas/v1/tenants/<tenantName>
+To check if the endpoint is still in creation GET http://localhost:52773/fhiraas/v1/tenants/<<tenantName>>
 ```json
 {
     "tenantId": "<tenantName>",
