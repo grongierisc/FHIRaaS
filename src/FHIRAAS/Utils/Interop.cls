@@ -13,11 +13,11 @@ ClassMethod Add(endpoint As %String) As %Status
 	try {
 		Set tSC=$$$OK
 		Set tSC= ..ProductionModification(,endpoint,"HL7Items",1) Quit:$$$ISERR(tSC)
-		$$$ThrowOnError(..CreateDirectoryItem("hl7"))
+		$$$ThrowOnError(..CreateDirectoryItem("hl7",endpoint))
         Set tSC= ..ProductionModification(,endpoint,"SDAItems",1) Quit:$$$ISERR(tSC)
-		$$$ThrowOnError(..CreateDirectoryItem("sda"))
+		$$$ThrowOnError(..CreateDirectoryItem("sda",endpoint))
         Set tSC= ..ProductionModification(,endpoint,"CDAItems",1) Quit:$$$ISERR(tSC)
-		$$$ThrowOnError(..CreateDirectoryItem("cda"))
+		$$$ThrowOnError(..CreateDirectoryItem("cda",endpoint))
 	} Catch ex {
 		Set tSC=ex.AsStatus()
 	}
@@ -74,21 +74,21 @@ ClassMethod GetXDataAsStreamWithSubstitutions(pXData, pNamespace, pEndpoint, ByR
 	Quit tSC
 }
 
-ClassMethod CreateDirectoryItem(item as %String,endpoint as %String) As %Status
+ClassMethod CreateDirectoryItem(item As %String, endpoint As %String) As %Status
 {
-	set tPath = "/tmp/share/_"$namespace"_/"_item_"/in/"_endpoint_"/"
+	set tPath = "/tmp/share/"_$namespace_"/"_item_"/in/"_endpoint_"/"
 	$$$ThrowOnError(..CreateDirectory(tPath))
 
-	set tPath = "/tmp/share/_"$namespace"_/"_item_"/out/"_endpoint_"/"
+	set tPath = "/tmp/share/"_$namespace_"/"_item_"/out/"_endpoint_"/"
 	$$$ThrowOnError(..CreateDirectory(tPath))
 
-	set tPath = "/tmp/share/_"$namespace"_/"_item_"/tmp/"_endpoint_"/"
+	set tPath = "/tmp/share/"_$namespace_"/"_item_"/tmp/"_endpoint_"/"
 	$$$ThrowOnError(..CreateDirectory(tPath))
 
 	Quit $$$OK
 }
 
-ClassMethod CreateDirectory(pPath as %String) As %Status
+ClassMethod CreateDirectory(pPath As %String) As %Status
 {
 	set pPath=##class(%File).NormalizeDirectory(pPath)
 	Quit ##class(%File).CreateDirectoryChain(pPath,.tErr)
