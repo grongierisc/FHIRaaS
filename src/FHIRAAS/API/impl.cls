@@ -66,7 +66,9 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         Set namespace=$zcvt(tenantId,"U")
 
         //Install a Foundation namespace and change to it
-        $$$ThrowOnError(##class(HS.HC.Util.Installer).InstallFoundation(namespace))
+        set pVars = ""
+        set pVars("DBInstallDirectory") = "/external/data/"
+        $$$ThrowOnError(##class(HS.HC.Util.Installer).InstallFoundation(namespace,.pVars))
 
         //Map Interop
         $$$ThrowOnError(##class(FHIRAAS.API.Utils).MapFHIRAASForNamespace(namespace))
