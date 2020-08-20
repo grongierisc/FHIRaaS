@@ -26,6 +26,12 @@ XData UrlMap [ XMLNamespace = "http://www.intersystems.com/urlmap" ]
   <Route Url="/tenants/:tenantId" Method="put" Call="putTenant" />
   <!-- Delete a tenant with an ID. -->
   <Route Url="/tenants/:tenantId" Method="delete" Call="deleteTenant" />
+  <!-- Returns a tenant by ID. -->
+  <Route Url="/tenants/:tenantId/:endpointId" Method="get" Call="getEndpoint" />
+  <!-- Create a endpoint with an ID. -->
+  <Route Url="/tenants/:tenantId/:endpointId" Method="put" Call="putEndpoint" />
+  <!-- Delete a endpoint with an ID. -->
+  <Route Url="/tenants/:tenantId/:endpointId" Method="delete" Call="deleteEndpoint" />
 </Routes>
 }
 
@@ -73,6 +79,43 @@ ClassMethod deleteTenant(ptenantId As %String) As %Status
 {
     Try {
         Set response=##class(FHIRAAS.API.impl).deleteTenant(ptenantId)
+        Do ##class(FHIRAAS.API.impl).%WriteResponse(response)
+    } Catch (ex) {
+        Do ##class(%REST.Impl).%ReportRESTError(..#HTTP500INTERNALSERVERERROR,ex.AsStatus(),$parameter("FHIRAAS.API.impl","ExposeServerExceptions"))
+    }
+    Quit $$$OK
+}
+
+/// Returns a tenant by ID.
+ClassMethod getEndpoint(ptenantId As %String, pendpointId As %String) As %Status
+{
+    Try {
+        Set response=##class(FHIRAAS.API.impl).getEndpoint(ptenantId,pendpointId)
+        Do ##class(FHIRAAS.API.impl).%WriteResponse(response)
+    } Catch (ex) {
+        Do ##class(%REST.Impl).%ReportRESTError(..#HTTP500INTERNALSERVERERROR,ex.AsStatus(),$parameter("FHIRAAS.API.impl","ExposeServerExceptions"))
+    }
+    Quit $$$OK
+}
+
+/// Create a endpoint with an ID.
+ClassMethod putEndpoint(ptenantId As %String, pendpointId As %String) As %Status
+{
+    Try {
+        If $isobject(%request.Content) Set ptenantInformations=%request.Content
+        Set response=##class(FHIRAAS.API.impl).putEndpoint(ptenantId,pendpointId,.ptenantInformations)
+        Do ##class(FHIRAAS.API.impl).%WriteResponse(response)
+    } Catch (ex) {
+        Do ##class(%REST.Impl).%ReportRESTError(..#HTTP500INTERNALSERVERERROR,ex.AsStatus(),$parameter("FHIRAAS.API.impl","ExposeServerExceptions"))
+    }
+    Quit $$$OK
+}
+
+/// Delete a endpoint with an ID.
+ClassMethod deleteEndpoint(ptenantId As %String, pendpointId As %String) As %Status
+{
+    Try {
+        Set response=##class(FHIRAAS.API.impl).deleteEndpoint(ptenantId,pendpointId)
         Do ##class(FHIRAAS.API.impl).%WriteResponse(response)
     } Catch (ex) {
         Do ##class(%REST.Impl).%ReportRESTError(..#HTTP500INTERNALSERVERERROR,ex.AsStatus(),$parameter("FHIRAAS.API.impl","ExposeServerExceptions"))
