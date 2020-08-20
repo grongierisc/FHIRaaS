@@ -118,8 +118,14 @@ XData FHIRItems
 XData CDAItems
 {
 <Items>
-  <Item Name="CDA_SDA_${endpoint}" Category="" ClassName="Interop.CustomTransformProcess" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
-    <Setting Target="Host" Name="TargetConfigNames">SDA_FHIR_${endpoint}</Setting>
+  <Item Name="CDA_FILE_${endpoint}" Category="" ClassName="EnsLib.File.PassthroughService" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="ArchivePath">/home/irisowner/${namespace}/cda/out/${endpoint}/</Setting>
+    <Setting Target="Adapter" Name="FilePath">/home/irisowner/${namespace}/cda/in/${endpoint}/</Setting>
+    <Setting Target="Adapter" Name="WorkPath">/home/irisowner/${namespace}/cda/tmp/${endpoint}/</Setting>
+    <Setting Target="Host" Name="TargetConfigNames">CDA_SDA_${endpoint}</Setting>
+  </Item>
+  <Item Name="CDA_SDA_${endpoint}" Category="" ClassName="Interop.CCDATransformProcess" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="TargetConfigName">SDA_FHIR_${endpoint}</Setting>
   </Item>
 </Items>
 }
