@@ -21,7 +21,7 @@ ClassMethod getTenants() As %DynamicObject
     While $order(^%SYS("HealthShare","Instances",tTenant))'="" {
         set tTenant = $order(^%SYS("HealthShare","Instances",tTenant))
         if (tTenant'="FHIRAAS") {
-            do dyna.%Push(##class(FHIRAAS.API.Utils).GetEndpointsByTenant(tTenant))
+            do dyna.%Push(##class(FHIRAAS.Utils.Utils).GetEndpointsByTenant(tTenant))
         }
     }
 
@@ -39,9 +39,9 @@ ClassMethod getTenant(tenantId As %String) As %Stream.Object
     New $namespace
 	
     Try {
-        $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
+        $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CheckNameSpace(tenantId))
         
-        set result= ##class(FHIRAAS.API.Utils).GetEndpointsByTenant(tenantId)
+        set result= ##class(FHIRAAS.Utils.Utils).GetEndpointsByTenant(tenantId)
 
     } Catch Error {
 
@@ -71,7 +71,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         $$$ThrowOnError(##class(HS.HC.Util.Installer).InstallFoundation(namespace,.pVars))
 
         //Map Interop
-        $$$ThrowOnError(##class(FHIRAAS.API.Utils).MapFHIRAASForNamespace(namespace))
+        $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).MapFHIRAASForNamespace(namespace))
 
         Return ..putEndpoint(tenantId,"endpoint")
 	
@@ -90,7 +90,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
 ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Stream.Object
 {
     
-    $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CheckNameSpace(tenantId))
 
     New $namespace
     Set $namespace=tenantId
@@ -100,7 +100,7 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
     // Install elements that are required for a FHIR-enabled namespace
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
-    Set appKey = ##class(FHIRAAS.API.Utils).GetAppKey(tenantId,endpointId)
+    Set appKey = ##class(FHIRAAS.Utils.Utils).GetAppKey(tenantId,endpointId)
 
     // Install an instance of a FHIR Service into the current namespace
     do ##class(HS.FHIRServer.Installer).UninstallInstance(appKey,delete)
@@ -205,12 +205,12 @@ ClassMethod EmitResult(pPayload As %DynamicAbstractObject = "") As %DynamicAbstr
 ///     endpointId, the endpoint Id<br/>
 ClassMethod getEndpoint(tenantId As %String, endpointId As %String) As %Stream.Object
 {
-    $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CheckNameSpace(tenantId))
 
     New $namespace
     Set $namespace=tenantId
 
-    Set appKey = ##class(FHIRAAS.API.Utils).GetAppKey(tenantId,endpointId)
+    Set appKey = ##class(FHIRAAS.Utils.Utils).GetAppKey(tenantId,endpointId)
 
     set result = {}
     set list = ##class(HS.FHIRServer.API.InteractionsStrategy).GetEndpointInfo()
@@ -224,7 +224,7 @@ ClassMethod getEndpoint(tenantId As %String, endpointId As %String) As %Stream.O
     }
 
     #dim pendingEndpoints as %DynamicArray
-    set pendingEndpoints = ##class(FHIRAAS.API.Utils).ReturnPendingEndpoints(0)
+    set pendingEndpoints = ##class(FHIRAAS.Utils.Utils).ReturnPendingEndpoints(0)
     if pendingEndpoints '= "" {
         set iterator = pendingEndpoints.%GetIterator()
         while iterator.%GetNext(.key,.value) {
@@ -242,7 +242,7 @@ ClassMethod getEndpoint(tenantId As %String, endpointId As %String) As %Stream.O
 ///     tenantInformations<br/>
 ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInformations As %Stream.Object) As %Stream.Object
 {
-    $$$ThrowOnError(##class(FHIRAAS.API.Utils).CheckNameSpace(tenantId))
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CheckNameSpace(tenantId))
 
     New $namespace
     Set $namespace=tenantId
@@ -251,19 +251,19 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
     //Init default interop
-    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Init(endpointId))
-    $$$ThrowOnError(##class(FHIRAAS.API.Interop).Add(endpointId))
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Init(endpointId))
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Add(endpointId))
 
-    Set appKey = ##class(FHIRAAS.API.Utils).GetAppKey(tenantId,endpointId)
+    Set appKey = ##class(FHIRAAS.Utils.Utils).GetAppKey(tenantId,endpointId)
     Set strategyClass = "HS.FHIRServer.Storage.Json.InteractionsStrategy"
     Set metadataConfigKey = "HL7v40"
 
     // Install an instance of a FHIR Service into the current namespace
-    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.API.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
+    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.Utils.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
     
     Set $namespace="FHIRAAS"
     Set %response.ContentType = ..#CONTENTTYPEJSON
-    Return ##class(FHIRAAS.API.Utils).GetJob(jobKey)
+    Return ##class(FHIRAAS.Utils.Utils).GetJob(jobKey)
 }
 
 }

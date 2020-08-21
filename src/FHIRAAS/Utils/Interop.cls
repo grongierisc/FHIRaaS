@@ -1,4 +1,4 @@
-Class FHIRAAS.API.Interop Extends HS.Util.Installer.Kit.Base
+Class FHIRAAS.Utils.Interop Extends HS.Util.Installer.Kit.Base
 {
 
 Parameter NamespaceTypes As %String;
@@ -18,6 +18,8 @@ ClassMethod Add(endpoint As %String) As %Status
 		$$$ThrowOnError(..CreateDirectoryItem("sda",endpoint))
         Set tSC= ..ProductionModification(,endpoint,"CDAItems",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("cda",endpoint))
+
+		$$$ThrowOnError(##class(HS.HC.Util.Installer).StartProduction($namespace,,.tState))
 	} Catch ex {
 		Set tSC=ex.AsStatus()
 	}

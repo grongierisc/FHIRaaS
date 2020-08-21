@@ -1,6 +1,6 @@
 Include (HS.HC, HS.HC.Invoke, HS.FHIRServer, HSMOD.REST.Async)
 
-Class FHIRAAS.API.Utils
+Class FHIRAAS.Utils.Utils
 {
 
 ClassMethod GetJobs() As %DynamicObject
@@ -116,7 +116,7 @@ ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
     set result.endpoints = endpoints
 
 
-    set pendingEndpoints = ##class(FHIRAAS.API.Utils).ReturnPendingEndpoints(1)
+    set pendingEndpoints = ##class(FHIRAAS.Utils.Utils).ReturnPendingEndpoints(1)
     if pendingEndpoints '= "" {
         set result.pendingEndpoints = pendingEndpoints
     } else {
