@@ -33,7 +33,7 @@ ClassMethod ProductionModification(pNS As %String = {$namespace}, pEndpoint, pIt
 		Set tWhere = $Namespace Set:pNS]"" $Namespace=pNS
 		Set tSC=..GetProduction(.tProdRef,pProductionClass) Quit:$$$ISERR(tSC)
 		If pAddItemsString="" {
-			Set tSC	= ..GetXDataAsStreamWithSubstitutions(pItems,pNS,pEndpoint, .tProduction) Quit:$$$ISERR(tSC)
+			Set tSC	= ..GetXDataAsStreamWithSubstitutions(pItems,$zcvt(pNS,"L"),pEndpoint, .tProduction) Quit:$$$ISERR(tSC)
 
 		} Else {
 			Set tProduction = ##class(%Stream.GlobalCharacter).%New()
