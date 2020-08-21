@@ -93,7 +93,7 @@ ClassMethod CheckNameSpace(tenantId) As %Status
 
 ClassMethod GetAppKey(tenantId As %String, endpointId As %String) As %String
 {
-	Return "/v1/fhiraas/"_tenantId_"/fhir/r4/"_endpointId
+	Return "/v1/fhiraas/"_$zcvt(tenantId,"L")_"/fhir/r4/"_endpointId
 }
 
 ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject

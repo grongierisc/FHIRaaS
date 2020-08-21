@@ -63,7 +63,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
 	
     Try {
         
-        Set namespace=$zcvt(tenantId,"U")
+        Set namespace=tenantId
 
         //Install a Foundation namespace and change to it
         set pVars = ""
