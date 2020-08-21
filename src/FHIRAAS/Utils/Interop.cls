@@ -108,7 +108,7 @@ XData HL7Items
     <Setting Target="Adapter" Name="WorkPath">/tmp/share/${namespace}/hl7/tmp/${endpoint}/</Setting>
   </Item>
   <Item Name="HL7_SDA_${endpoint}" Category="" ClassName="Interop.HL7TransformProcess" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
-    <Setting Target="Host" Name="TargetConfigNames">SDA_FHIR_${endpoint}</Setting>
+    <Setting Target="Host" Name="TargetConfigName">SDA_FHIR_${endpoint}</Setting>
   </Item>
 </Items>
 }
