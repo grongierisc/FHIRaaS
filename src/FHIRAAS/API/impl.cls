@@ -73,7 +73,7 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         //Map Interop
         $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).MapFHIRAASForNamespace(namespace))
 
-        Return ..putEndpoint(tenantId,"endpoint")
+        Return ..putEndpoint(tenantId,"endpoint",$g(tenantInformations))
 	
 	} Catch Error {
 
@@ -178,6 +178,12 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
             If $$$ISERR(tSC) throw ##Class(%Exception.StatusException).CreateFromStatus(tSC)
         }
 
+        // Delete Resource, Role, User
+        set sc = ##class(Security.Users).Delete(tenantId)
+        set sc = ##class(Security.Roles).Delete("#"_tenantId)
+        set sc = ##class(Security.Resources).Delete("$"_tenantId)
+
+
 	} Catch Error {
 		
         $$$ThrowOnError(Error.AsStatus())
@@ -247,6 +253,15 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     New $namespace
     Set $namespace=tenantId
 
+    // Check password
+    set password = ""
+    if $IsObject(tenantInformations) {
+        //Verify payload confirmity against definition
+        Set tPaylaod = ##class(FHIRAAS.API.Definition.CreateTenant).%New()
+        $$$ThrowOnError(tPaylaod.%JSONImport(tenantInformations))
+        set password = tPaylaod.rootPassword
+    }
+
     // Install elements that are required for a FHIR-enabled namespace
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
@@ -259,7 +274,7 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     Set metadataConfigKey = "HL7v40"
 
     // Install an instance of a FHIR Service into the current namespace
-    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.Utils.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",0)
+    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.Utils.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",password)
     
     Set $namespace="FHIRAAS"
     Set %response.ContentType = ..#CONTENTTYPEJSON

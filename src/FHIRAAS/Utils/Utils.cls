@@ -96,6 +96,43 @@ ClassMethod GetAppKey(tenantId As %String, endpointId As %String) As %String
 	Return "/v1/fhiraas/"_$zcvt(tenantId,"L")_"/fhir/r4/"_endpointId
 }
 
+ClassMethod CreateResource(pResource As %String) As %Status
+{
+	Quit ##class(HS.Util.SystemAPI).Invoke("AddUpdateResource",$Namespace,pResource,"","")
+}
+
+ClassMethod CreateRole(pRole As %String, pResource As %String) As %Status
+{
+	Quit ##class(HS.Util.SystemAPI).Invoke("AddUpdateRole",$Namespace,pRole,"",pResource_":RWU","")
+}
+
+ClassMethod CreateUser(pRole As %String, pPassword As %String) As %Status
+{
+	Set tSC=$$$OK
+	Try {
+		Set tUser = $namespace,tUserFullName="FHIRaaS User"
+		Set tRole = pRole
+
+		$$$ThrowOnError(tSC)
+		new $namespace
+		set $namespace="%SYS"
+		
+		If '##class(Security.Users).Exists(tUser,.User) {
+			Set tEnabled = 1
+			Set tSC=##Class(Security.Users).Create(tUser,tRole,pPassword,tUserFullName,,,,,tEnabled,,,,,,1,1)
+			$$$ThrowOnError(tSC)
+		} Else {
+			Set User.Enabled = 1
+			Set tSC=User.%Save() 
+			$$$ThrowOnError(tSC)
+		}
+
+	} catch ex {
+		Set tSC = ex.AsStatus()
+	} 
+	Quit tSC
+}
+
 ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
 {
     New $namespace
@@ -190,7 +227,7 @@ ClassMethod JobRecordToJson(jobRecord As HSMOD.REST.Async.JobRecord) As %Dynamic
 	return json
 }
 
-ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMetadataSetKey As %String, pOAuthClientName As %String = "", allowUnauthenticatedAccess As %Boolean = 0)
+ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMetadataSetKey As %String, pOAuthClientName As %String = "", pPassword As %String)
 {
 	TSTART
 	try {
@@ -216,6 +253,16 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		if '$data($$$FSMetaGlobal(metadataSet.Key)) {
 			w "Loading Metadata into Globals",!
 			Do ##class(HS.FHIRServer.Tools.FHIRMetadataSetLoader).BuildGlobals(metadataSet.Key)
+		}
+
+		// Create Resouce
+		set tResource = "$"_$Namespace
+		$$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateResource(tResource))
+
+		if $g(pPassword) '= "" {
+			set tRole = "#"_$Namespace
+			$$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateRole(tRole,tResource))
+			$$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateUser(tRole,pPassword))
 		}
 
 		// Create the CSP Application
@@ -252,6 +299,7 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 			Set tProps("GroupById") = ""
 			Set tProps("CookiePath") = ""
 			Set tProps("CSPZENEnabled") = 1
+			Set:($g(pPassword)'="") tProps("Resource") = tResource
 		}
 		Set tSC=##class(HS.Util.SystemAPI).Invoke("UpdateCSPApp",tNS,pAppKey,$$$NVPairToList(tProps),1,"n")
 		$$$ThrowOnError( tSC )
@@ -279,7 +327,7 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		#dim configData as HS.FHIRServer.API.ConfigData = ##class(HS.FHIRServer.Tools.ConfigEditor).NewDefaultConfig()
 		
 		Set configData.DebugMode = 0
-		Set:(allowUnauthenticatedAccess) configData.DebugMode = 4
+		Set:($g(pPassword)="") configData.DebugMode = 4
 		Set configData.FHIRVersion = metadataSet.FHIRVersion
 		Set configData.FHIRMetadataSet = metadataSet.Key
 		Set configData.InteractionsStrategyClass = pStrategyClass

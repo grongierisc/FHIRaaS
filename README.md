@@ -5,7 +5,7 @@
 - [x] Affiner get tenants/:id
 - [x] Ajouter l'interopérabilité (CCDA,HL7,SDA)
 - [ ] Ajouter information production dans json
-- [ ] Ajouter les mots de passe par tenant
+- [x] Ajouter les mots de passe par tenant
 
 # Introduction 
 This is the FHIR as a Service project (aka : FHIRAAS). It is based on InterSystem's IRIS for Health.
