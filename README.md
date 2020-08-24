@@ -6,6 +6,7 @@
 - [x] Ajouter l'interopérabilité (CCDA,HL7,SDA)
 - [ ] Ajouter information production dans json
 - [x] Ajouter les mots de passe par tenant
+- [x] Ajouter des tests unitaires
 
 # Introduction 
 This is the FHIR as a Service project (aka : FHIRAAS). It is based on InterSystem's IRIS for Health.
@@ -107,6 +108,11 @@ Visual Studio Directory Structure
 ...
 ```
 
-
-
+ ## Test this module
+ 
+ Natively from depot :
+ 
+ ```objectscript
+ do ##class(%UnitTest.Manager).DebugRunTestCase("","Test.Grongier.JSON.Utils",,)
+ ```
 
