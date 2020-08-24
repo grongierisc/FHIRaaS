@@ -1,6 +1,6 @@
 ## TODO 
 
-- [ ] HTTPS 
+- [x] HTTPS 
 - [x] Generation de tenant en mode async
 - [x] Affiner get tenants/:id
 - [x] Ajouter l'interopérabilité (CCDA,HL7,SDA)
