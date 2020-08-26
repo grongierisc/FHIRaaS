@@ -73,6 +73,9 @@ ClassMethod putTenant(tenantId As %String, tenantInformations As %Stream.Object)
         //Map Interop
         $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).MapFHIRAASForNamespace(namespace))
 
+        //init interop
+        $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Init(tenantId))
+
         Return ..putEndpoint(tenantId,"endpoint",$g(tenantInformations))
 	
 	} Catch Error {
@@ -104,6 +107,9 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
 
     // Install an instance of a FHIR Service into the current namespace
     do ##class(HS.FHIRServer.Installer).UninstallInstance(appKey,delete)
+
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Delete(endpointId))
+
     
     Quit ""
 }
@@ -268,7 +274,6 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
     //Init default interop
-    $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Init(endpointId))
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Add(endpointId))
 
     Set appKey = ##class(FHIRAAS.Utils.Utils).GetAppKey(tenantId,endpointId)

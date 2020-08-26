@@ -3,26 +3,84 @@ Class FHIRAAS.Utils.Interop Extends HS.Util.Installer.Kit.Base
 
 Parameter NamespaceTypes As %String;
 
-ClassMethod Init(endpoint As %String) As %Status
+ClassMethod Init(tenant As %String) As %Status
 {
-    Quit ..ProductionModification(,endpoint,"FHIRItems",1) Quit:$$$ISERR(tSC)
+	new $Namespace
+	set $Namespace = tenant
+    set tSC = ..ProductionModification(,"","FHIRItems",1) Quit:$$$ISERR(tSC)
+
+    $$$ThrowOnError(##class(HS.HC.Util.Installer).StartProduction($namespace,,.tState))
+
+	Quit $$$OK
 }
 
 ClassMethod Add(endpoint As %String) As %Status
 {
 	try {
 		Set tSC=$$$OK
+
 		Set tSC= ..ProductionModification(,endpoint,"HL7Items",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("hl7",endpoint))
+
         Set tSC= ..ProductionModification(,endpoint,"SDAItems",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("sda",endpoint))
+
         Set tSC= ..ProductionModification(,endpoint,"CDAItems",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("cda",endpoint))
 
-		$$$ThrowOnError(##class(HS.HC.Util.Installer).StartProduction($namespace,,.tState))
+		$$$ThrowOnError(##class(Ens.Director).UpdateProduction())
+
 	} Catch ex {
 		Set tSC=ex.AsStatus()
 	}
+	Quit tSC
+}
+
+ClassMethod Delete(endpoint As %String) As %Status
+{
+	try {
+		Set tSC=$$$OK
+
+		Set tSC= ..DeleteProductionItems(,endpoint,"HL7Items",1) Quit:$$$ISERR(tSC)
+
+        Set tSC= ..DeleteProductionItems(,endpoint,"SDAItems",1) Quit:$$$ISERR(tSC)
+
+        Set tSC= ..DeleteProductionItems(,endpoint,"CDAItems",1) Quit:$$$ISERR(tSC)
+
+		$$$ThrowOnError(##class(Ens.Director).UpdateProduction())
+
+	} Catch ex {
+		Set tSC=ex.AsStatus()
+	}
+	Quit tSC
+}
+
+ClassMethod DeleteProductionItems(pNS As %String = {$namespace}, pEndpoint, pItems As %String = "", pUpdate As %Boolean = 0, pProductionClass = "", pAddItemsString = "") As %Status
+{
+	try {
+		Set tSC=$$$OK
+		Set tWhere = $Namespace Set:pNS]"" $Namespace=pNS
+		Set tSC=..GetProduction(.tProdRef,pProductionClass) Quit:$$$ISERR(tSC)
+		If pAddItemsString="" {
+			Set tSC	= ..GetXDataAsStreamWithSubstitutions(pItems,$zcvt(pNS,"L"),pEndpoint, .tProduction) Quit:$$$ISERR(tSC)
+
+		} Else {
+			Set tProduction = ##class(%Stream.GlobalCharacter).%New()
+			Do tProduction.Write("<Items>"_pAddItemsString_"</Items>"),tProduction.Rewind()
+		}
+		set tReader = ##class(%XML.Reader).%New()
+		Set tSC = tReader.OpenStream(tProduction,.tObject) Quit:$$$ISERR(tSC)
+		Do tReader.Correlate("Item","Ens.Config.Item")
+		While tReader.Next(.tItem, .tSC) {
+			Set tSC=##class(HS.Util.Installer.Kit.Base).RemoveConfigItem(tItem,tProdRef) 
+			Quit:$$$ISERR(tSC)
+		}
+		Set tSC=##class(HS.Util.Installer.Upgrade.Abstract).SaveProduction(tProdRef)
+		
+	} Catch ex {
+		Set tSC=ex.AsStatus()
+	}
+	Set $Namespace=tWhere
 	Quit tSC
 }
 
