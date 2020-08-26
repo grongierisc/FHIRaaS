@@ -257,7 +257,7 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
 
     // Check password
     set password = ""
-    if $IsObject(tenantInformations) {
+    if $IsObject($g(tenantInformations)) {
         //Verify payload confirmity against definition
         Set tPaylaod = ##class(FHIRAAS.API.Definition.CreateTenant).%New()
         $$$ThrowOnError(tPaylaod.%JSONImport(tenantInformations))
