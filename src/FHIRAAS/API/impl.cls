@@ -225,6 +225,7 @@ ClassMethod getEndpoint(tenantId As %String, endpointId As %String) As %Stream.O
     while $listnext(list, ptr, entry) {
         set endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint($listget(entry, 1))
         if endpoint '= "" {
+            set endpoint."interop_config" = ##class(FHIRAAS.Utils.Utils).GetInterfaceMaps()
             set:(endpoint.name=appKey) result = endpoint
         }
     }
@@ -237,6 +238,7 @@ ClassMethod getEndpoint(tenantId As %String, endpointId As %String) As %Stream.O
         	set:(value.name=appKey) result = value
         }
     }
+
     Set %response.ContentType = ..#CONTENTTYPEJSON
 	return result
 }

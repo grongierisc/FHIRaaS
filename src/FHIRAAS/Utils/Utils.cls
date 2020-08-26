@@ -106,6 +106,22 @@ ClassMethod CreateRole(pRole As %String, pResource As %String) As %Status
 	Quit ##class(HS.Util.SystemAPI).Invoke("AddUpdateRole",$Namespace,pRole,"",pResource_":RWU","")
 }
 
+ClassMethod GetInterfaceMaps() As %DynamicObject
+{
+	Set out = []
+	Set tResult = ##class(%Library.ResultSet).%New("Ens.InterfaceMaps.Utils:EnumeratePaths")
+	do tResult.Execute()
+	while tResult.%Next() {
+		set tmp = {}
+		set tmp.service = tResult.%Get("Service")
+		set tmp.processes = tResult.%Get("Processes")
+		set tmp.operation = tResult.%Get("Operation")
+		do out.%Push(tmp)
+	}
+
+	Return out
+}
+
 ClassMethod CreateUser(pRole As %String, pPassword As %String) As %Status
 {
 	Set tSC=$$$OK
@@ -147,6 +163,7 @@ ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
     while $listnext(list, ptr, entry) {
         set endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint($listget(entry, 1))
         if endpoint '= "" {
+			set endpoint."interop_config" = ##class(FHIRAAS.Utils.Utils).GetInterfaceMaps()
             do endpoints.%Push(endpoint)
         }
     }

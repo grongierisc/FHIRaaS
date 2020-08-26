@@ -4,7 +4,7 @@
 - [x] Generation de tenant en mode async
 - [x] Affiner get tenants/:id
 - [x] Ajouter l'interopérabilité (CCDA,HL7,SDA)
-- [ ] Ajouter information production dans json
+- [x] Ajouter information production dans json
 - [x] Ajouter les mots de passe par tenant
 - [x] Ajouter des tests unitaires
 
