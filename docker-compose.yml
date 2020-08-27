@@ -15,7 +15,7 @@ services:
     volumes:
       - ./:/irisdev/app
       - ./share/:/tmp/share
-      - fhiraas_external:/external
+      #- fhiraas_external:/external
   proxy:
     build:
       context: https/.
