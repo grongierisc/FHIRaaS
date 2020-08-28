@@ -23,3 +23,7 @@ COPY iris.script /tmp/iris.script
 RUN iris start $ISC_PACKAGE_INSTANCENAME \
 	&& iris session $ISC_PACKAGE_INSTANCENAME < /tmp/iris.script \
 	&& iris stop $ISC_PACKAGE_INSTANCENAME quietly
+
+RUN old=http://localhost:52773/crud/_spec && \
+	new=http://localhost:52773/api/mgmnt/v2/FHIRAAS/FHIRAAS.API && \
+	sed -i "s|$old|$new|g" /usr/irissys/csp/swagger-ui/index.html

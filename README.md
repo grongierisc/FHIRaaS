@@ -85,6 +85,12 @@ When over endpoints array will be populated :
 }
 ```
 
+## Swagger Spec 
+
+```
+http://localhost:52773/swagger-ui/index.html
+```
+
 # Misc
 Visual Studio Directory Structure
 

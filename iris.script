@@ -10,6 +10,7 @@ zw $System.OBJ.ImportDir("/opt/irisapp/src/","*","cdk",.errors,1)
 ; zpm install openapi class definiton
 zpm
 install objectscript-openapi-definition
+install swagger-ui
 q
 
 zn "%SYS"
