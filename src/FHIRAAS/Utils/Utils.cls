@@ -75,7 +75,7 @@ ClassMethod MapFHIRAASForNamespace(pNS, pActivate = 1) As %Status
 {
 	try {
 		Set tSC=$$$OK
-		Set tSC=##class(HS.HC.Util.Installer).AddClassMappings("",pNS,"FHIRAAS,Interop","FHIRAAS")
+		Set tSC=##class(HS.HC.Util.Installer).AddClassMappings("",pNS,"FHIRAAS,Interop,User","FHIRAAS")
 		Quit:$$$ISERR(tSC)
 		Do:pActivate ##class(HS.HC.Util.Installer).ActivateConfiguration(,pNS)
 	} Catch ex {
