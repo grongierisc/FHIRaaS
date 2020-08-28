@@ -25,5 +25,5 @@ RUN iris start $ISC_PACKAGE_INSTANCENAME \
 	&& iris stop $ISC_PACKAGE_INSTANCENAME quietly
 
 RUN old=http://localhost:52773/crud/_spec && \
-	new=http://localhost:52773/api/mgmnt/v2/FHIRAAS/FHIRAAS.API && \
+	new=http://localhost:52773/fhiraas/v1/tenants/_spec && \
 	sed -i "s|$old|$new|g" /usr/irissys/csp/swagger-ui/index.html

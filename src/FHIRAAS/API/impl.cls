@@ -1,6 +1,6 @@
 /// Iris Api to manage tenants<br/>
 /// Business logic class defined by OpenAPI in FHIRAAS.API.spec<br/>
-/// Updated Aug 20, 2020 08:09:25
+/// Updated Aug 28, 2020 09:03:05
 Class FHIRAAS.API.impl Extends %REST.Impl [ ProcedureBlock ]
 {
 
@@ -286,6 +286,18 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     Set $namespace="FHIRAAS"
     Set %response.ContentType = ..#CONTENTTYPEJSON
     Return ##class(FHIRAAS.Utils.Utils).GetJob(jobKey)
+}
+
+/// Get this spec
+ClassMethod getSpec() As %Stream.Object
+{
+  Set tSC = ##class(%REST.API).GetWebRESTApplication($NAMESPACE, %request.Application, .swagger)
+  Do swagger.info.%Remove("x-ISC_Namespace")
+  Set swagger.basePath = "/fhiraas/v1"
+  Set swagger.info.title = "InterSystems IRIS FHIRAAS"
+  Set swagger.info.version = "0.1"
+  Set swagger.host = "localhost:52773"
+  Return swagger
 }
 
 }

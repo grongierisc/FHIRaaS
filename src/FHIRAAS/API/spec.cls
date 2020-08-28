@@ -16,6 +16,23 @@ XData OpenAPI [ MimeType = application/json ]
     "https"
   ],
   "paths": {
+    "/tenants/_spec": {
+      "get": {
+        "summary": "Get this spec",
+        "operationId": "getSpec",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/tenants": {
       "get": {
         "summary": "Returns a list of tenants.",
@@ -26,7 +43,13 @@ XData OpenAPI [ MimeType = application/json ]
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/tenant"
+              }
+            }
           }
         }
       }
@@ -46,7 +69,10 @@ XData OpenAPI [ MimeType = application/json ]
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/tenant"
+            }
           },
           "404": {
             "description": "Not Found"
@@ -68,13 +94,16 @@ XData OpenAPI [ MimeType = application/json ]
             "in": "body",
             "name": "tenantInformations",
             "schema": {
-              "$ref": "#/definitions/CreateTenant"
+              "$ref": "#/definitions/createTenant"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/pendingEndpoint"
+            }
           },
           "404": {
             "description": "Not Found"
@@ -131,7 +160,10 @@ XData OpenAPI [ MimeType = application/json ]
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/endpoint"
+            }
           },
           "404": {
             "description": "Not Found"
@@ -160,13 +192,16 @@ XData OpenAPI [ MimeType = application/json ]
             "in": "body",
             "name": "tenantInformations",
             "schema": {
-              "$ref": "#/definitions/CreateTenant"
+              "$ref": "#/definitions/createTenant"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/pendingEndpoint"
+            }
           },
           "404": {
             "description": "Not Found"
@@ -210,7 +245,107 @@ XData OpenAPI [ MimeType = application/json ]
     }
   },
   "definitions": {
-    "CreateTenant": {
+    "pendingEndpoint": {
+      "type": "object",
+      "properties": {
+        "job_key": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "service_config_data": {
+          "$ref": "#/definitions/service_config_data"
+        },
+        "csp_config": {
+          "$ref": "#/definitions/csp_config"
+        },
+        "interop_config": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/interop_config"
+          }
+        }
+      }
+    },
+    "service_config_data": {
+      "type": "object",
+      "properties": {
+        "fhir_metadata_set": {
+          "type": "string"
+        },
+        "fhir_version": {
+          "type": "string"
+        },
+        "interactions_strategy_class": {
+          "type": "string"
+        },
+        "default_search_page_size": {
+          "type": "integer"
+        },
+        "max_search_page_size": {
+          "type": "integer"
+        },
+        "max_search_results": {
+          "type": "integer"
+        },
+        "max_conditional_delete_results": {
+          "type": "integer"
+        },
+        "fhir_session_timeout": {
+          "type": "integer"
+        },
+        "default_prefer_handling": {
+          "type": "string"
+        },
+        "debug_mode": {
+          "type": "integer"
+        }
+      }
+    },
+    "csp_config": {
+      "type": "object",
+      "properties": {
+        "oauth_client_name": {
+          "type": "string"
+        },
+        "service_config_name": {
+          "type": "string"
+        }
+      }
+    },
+    "interop_config": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "type": "string"
+        },
+        "processes": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        }
+      }
+    },
+    "createTenant": {
       "type": "object",
       "properties": {
         "rootPassword": {
@@ -218,19 +353,25 @@ XData OpenAPI [ MimeType = application/json ]
         }
       }
     },
-    "Tenant": {
+    "tenant": {
       "type": "object",
       "properties": {
-        "id": {
+        "tenantId": {
           "type": "string"
         },
-        "status": {
-          "type": "string"
+        "endpoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/endpoint"
+          }
+        },
+        "pendingEndpoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pendingEndpoint"
+          }
         }
-      },
-      "required": [
-        "id"
-      ]
+      }
     }
   }
 }

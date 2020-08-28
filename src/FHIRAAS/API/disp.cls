@@ -15,9 +15,13 @@ Parameter CONVERTINPUTSTREAM = 1;
 /// The default response charset is utf-8
 Parameter CHARSET = "utf-8";
 
+Parameter HandleCorsRequest = 1;
+
 XData UrlMap [ XMLNamespace = "http://www.intersystems.com/urlmap" ]
 {
 <Routes>
+  <!-- Get this spec -->
+  <Route Url="/tenants/_spec" Method="get" Call="getSpec" />
   <!-- Returns a list of tenants. -->
   <Route Url="/tenants" Method="get" Call="getTenants" />
   <!-- Returns a tenant by ID. -->
@@ -33,6 +37,18 @@ XData UrlMap [ XMLNamespace = "http://www.intersystems.com/urlmap" ]
   <!-- Delete a endpoint with an ID. -->
   <Route Url="/tenants/:tenantId/:endpointId" Method="delete" Call="deleteEndpoint" />
 </Routes>
+}
+
+/// Get this spec
+ClassMethod getSpec() As %Status
+{
+    Try {
+        Set response=##class(FHIRAAS.API.impl).getSpec()
+        Do ##class(FHIRAAS.API.impl).%WriteResponse(response)
+    } Catch (ex) {
+        Do ##class(%REST.Impl).%ReportRESTError(..#HTTP500INTERNALSERVERERROR,ex.AsStatus(),$parameter("FHIRAAS.API.impl","ExposeServerExceptions"))
+    }
+    Quit $$$OK
 }
 
 /// Returns a list of tenants.
