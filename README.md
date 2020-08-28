@@ -7,6 +7,7 @@
 - [x] Ajouter information production dans json
 - [x] Ajouter les mots de passe par tenant
 - [x] Ajouter des tests unitaires
+- [ ] Ajouter CORS dans spec swagger
 
 # Introduction 
 This is the FHIR as a Service project (aka : FHIRAAS). It is based on InterSystem's IRIS for Health.
