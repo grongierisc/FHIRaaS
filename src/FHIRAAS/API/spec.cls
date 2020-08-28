@@ -13,7 +13,7 @@ XData OpenAPI [ MimeType = application/json ]
   "host": "api.fhir.fr",
   "basePath": "/v1/management/",
   "schemes": [
-    "https"
+    "http"
   ],
   "paths": {
     "/tenants/_spec": {

@@ -291,13 +291,15 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
 /// Get this spec
 ClassMethod getSpec() As %Stream.Object
 {
-  Set tSC = ##class(%REST.API).GetWebRESTApplication($NAMESPACE, %request.Application, .swagger)
-  Do swagger.info.%Remove("x-ISC_Namespace")
-  Set swagger.basePath = "/fhiraas/v1"
-  Set swagger.info.title = "InterSystems IRIS FHIRAAS"
-  Set swagger.info.version = "0.1"
-  Set swagger.host = "localhost:52773"
-  Return swagger
+    set pXData = "xdata://FHIRAAS.API.spec:OpenAPI"
+    Set tSC = ##class(Ens.Util.URLStream).GetURLStream(pXData,.tStream)
+    set swagger = {}.%FromJSON(tStream)
+    Do swagger.info.%Remove("x-ISC_Namespace")
+    Set swagger.basePath = "/fhiraas/v1"
+    Set swagger.info.title = "InterSystems IRIS FHIRAAS"
+    Set swagger.info.version = "0.1"
+    Set swagger.host = "localhost:52773"
+    Return swagger
 }
 
 }
