@@ -106,6 +106,18 @@ ClassMethod CreateRole(pRole As %String, pResource As %String) As %Status
 	Quit ##class(HS.Util.SystemAPI).Invoke("AddUpdateRole",$Namespace,pRole,"",pResource_":RWU","")
 }
 
+ClassMethod InstallUi(tenantId As %String, endpoint As %String) As %Status
+{
+
+	SET args=2
+  	SET args(1)="/opt/irisapp/ui/install.sh"
+	SET args(2)=$zcvt(tenantId,"L")
+  	SET args(3)=$zcvt(endpoint,"L")
+  	SET status = $ZF(-100,"", "sh",.args)
+
+	Quit status
+}
+
 ClassMethod GetInterfaceMaps(endpoint As %String = "") As %DynamicObject
 {
 	Set out = []

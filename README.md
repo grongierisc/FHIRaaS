@@ -9,6 +9,7 @@
 - [x] Ajouter des tests unitaires
 - [ ] Ajouter CORS dans spec swagger
 - [ ] Ajouter FHIR analytics
+- [x] Ajouter une UI par endpoint
 
 # Introduction 
 This is the FHIR as a Service project (aka : FHIRAAS). It is based on InterSystem's IRIS for Health.
@@ -27,6 +28,11 @@ Run the server
 
 ```sh
 docker-compose up -d
+```
+
+# UI
+```
+http://localhost:52773/csp/healthshare/{tenant}/{endpoint}/ui/index.html
 ```
 
 # Create tenant

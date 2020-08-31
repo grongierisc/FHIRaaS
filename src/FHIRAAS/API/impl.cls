@@ -273,6 +273,9 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     // Install elements that are required for a FHIR-enabled namespace
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
+    //Install Ui
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).InstallUi(tenantId,endpointId))
+
     //Init default interop
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Add(endpointId))
 
