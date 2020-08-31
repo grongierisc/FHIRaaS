@@ -106,11 +106,11 @@ ClassMethod CreateRole(pRole As %String, pResource As %String) As %Status
 	Quit ##class(HS.Util.SystemAPI).Invoke("AddUpdateRole",$Namespace,pRole,"",pResource_":RWU","")
 }
 
-ClassMethod GetInterfaceMaps() As %DynamicObject
+ClassMethod GetInterfaceMaps(endpoint As %String = "") As %DynamicObject
 {
 	Set out = []
 	Set tResult = ##class(%Library.ResultSet).%New("Ens.InterfaceMaps.Utils:EnumeratePaths")
-	do tResult.Execute()
+	do tResult.Execute(endpoint)
 	while tResult.%Next() {
 		set tmp = {}
 		set tmp.service = tResult.%Get("Service")
