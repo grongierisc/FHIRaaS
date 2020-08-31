@@ -274,7 +274,7 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
 
     //Install Ui
-    $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).InstallUi(tenantId,endpointId))
+    do ##class(FHIRAAS.Utils.Utils).InstallUi(tenantId,endpointId)
 
     //Init default interop
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Add(endpointId))
