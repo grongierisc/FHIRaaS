@@ -19,13 +19,17 @@ ClassMethod Add(endpoint As %String) As %Status
 	try {
 		Set tSC=$$$OK
 
-		Set tSC= ..ProductionModification(,endpoint,"HL7Items",1) Quit:$$$ISERR(tSC)
+		set tArraySub =""
+		Set tArraySub("namespace")= $zcvt($Namespace,"L")
+		Set tArraySub("endpoint")= endpoint
+
+		Set tSC= ..ProductionModification(,.tArraySub,"HL7Items",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("hl7",endpoint))
 
-        Set tSC= ..ProductionModification(,endpoint,"SDAItems",1) Quit:$$$ISERR(tSC)
+        Set tSC= ..ProductionModification(,.tArraySub,"SDAItems",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("sda",endpoint))
 
-        Set tSC= ..ProductionModification(,endpoint,"CDAItems",1) Quit:$$$ISERR(tSC)
+        Set tSC= ..ProductionModification(,.tArraySub,"CDAItems",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("cda",endpoint))
 
 		$$$ThrowOnError(##class(Ens.Director).UpdateProduction())
@@ -41,11 +45,16 @@ ClassMethod Delete(endpoint As %String) As %Status
 	try {
 		Set tSC=$$$OK
 
-		Set tSC= ..DeleteProductionItems(,endpoint,"HL7Items",1) Quit:$$$ISERR(tSC)
+		set tArraySub =""
+		Set tArraySub("namespace")= $zcvt($Namespace,"L")
+		Set tArraySub("endpoint")= endpoint
 
-        Set tSC= ..DeleteProductionItems(,endpoint,"SDAItems",1) Quit:$$$ISERR(tSC)
 
-        Set tSC= ..DeleteProductionItems(,endpoint,"CDAItems",1) Quit:$$$ISERR(tSC)
+		Set tSC= ..DeleteProductionItems(,.tArraySub,"HL7Items",1) Quit:$$$ISERR(tSC)
+
+        Set tSC= ..DeleteProductionItems(,.tArraySub,"SDAItems",1) Quit:$$$ISERR(tSC)
+
+        Set tSC= ..DeleteProductionItems(,.tArraySub,"CDAItems",1) Quit:$$$ISERR(tSC)
 
 		$$$ThrowOnError(##class(Ens.Director).UpdateProduction())
 
@@ -55,14 +64,14 @@ ClassMethod Delete(endpoint As %String) As %Status
 	Quit tSC
 }
 
-ClassMethod DeleteProductionItems(pNS As %String = {$namespace}, pEndpoint, pItems As %String = "", pUpdate As %Boolean = 0, pProductionClass = "", pAddItemsString = "") As %Status
+ClassMethod DeleteProductionItems(pNS As %String = {$namespace}, pArraySub, pItems As %String = "", pUpdate As %Boolean = 0, pProductionClass = "", pAddItemsString = "") As %Status
 {
 	try {
 		Set tSC=$$$OK
 		Set tWhere = $Namespace Set:pNS]"" $Namespace=pNS
 		Set tSC=..GetProduction(.tProdRef,pProductionClass) Quit:$$$ISERR(tSC)
 		If pAddItemsString="" {
-			Set tSC	= ..GetXDataAsStreamWithSubstitutions(pItems,$zcvt(pNS,"L"),pEndpoint, .tProduction) Quit:$$$ISERR(tSC)
+			Set tSC	= ..GetXDataAsStreamWithSubstitutions(pItems,.pArraySub, .tProduction) Quit:$$$ISERR(tSC)
 
 		} Else {
 			Set tProduction = ##class(%Stream.GlobalCharacter).%New()
@@ -84,14 +93,15 @@ ClassMethod DeleteProductionItems(pNS As %String = {$namespace}, pEndpoint, pIte
 	Quit tSC
 }
 
-ClassMethod ProductionModification(pNS As %String = {$namespace}, pEndpoint, pItems As %String = "", pUpdate As %Boolean = 0, pProductionClass = "", pAddItemsString = "") As %Status
+ClassMethod ProductionModification(pNS As %String = {$namespace}, pArraySub, pItems As %String = "", pUpdate As %Boolean = 0, pProductionClass = "", pAddItemsString = "") As %Status
 {
 	try {
 		Set tSC=$$$OK
 		Set tWhere = $Namespace Set:pNS]"" $Namespace=pNS
 		Set tSC=..GetProduction(.tProdRef,pProductionClass) Quit:$$$ISERR(tSC)
 		If pAddItemsString="" {
-			Set tSC	= ..GetXDataAsStreamWithSubstitutions(pItems,$zcvt(pNS,"L"),pEndpoint, .tProduction) Quit:$$$ISERR(tSC)
+			
+			Set tSC	= ..GetXDataAsStreamWithSubstitutions(pItems,.pArraySub, .tProduction) Quit:$$$ISERR(tSC)
 
 		} Else {
 			Set tProduction = ##class(%Stream.GlobalCharacter).%New()
@@ -113,7 +123,7 @@ ClassMethod ProductionModification(pNS As %String = {$namespace}, pEndpoint, pIt
 	Quit tSC
 }
 
-ClassMethod GetXDataAsStreamWithSubstitutions(pXData, pNamespace, pEndpoint, ByRef pStream) As %Status
+ClassMethod GetXDataAsStreamWithSubstitutions(pXData, pArraySubstitut, ByRef pStream) As %Status
 {
 	If pXData'[":" Set pXData="xdata://"_$classname()_":"_pXData
 	Set tSC = ##class(Ens.Util.URLStream).GetURLStream(pXData,.tStream) 
@@ -126,7 +136,7 @@ ClassMethod GetXDataAsStreamWithSubstitutions(pXData, pNamespace, pEndpoint, ByR
 		Set tPosEnd=$f(tString,"}",tPos)
 		Quit:'tPosEnd
 		Set name=$e(tString,tPos,tPosEnd-2)
-		set value = $s(name="namespace":pNamespace,name="endpoint":pEndpoint,1:"default")
+		set value = $s($d(pArraySubstitut(name)):pArraySubstitut(name),1:"default")
 		Set tString=$e(tString,1,tPos-3)_value_$e(tString,tPosEnd,*)
 	}
 	Set pStream=##class(%Stream.GlobalCharacter).%New()

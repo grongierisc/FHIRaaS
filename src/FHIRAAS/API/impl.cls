@@ -311,7 +311,7 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     Set metadataConfigKey = "HL7v40"
 
     // Install an instance of a FHIR Service into the current namespace
-    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.Utils.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",tResource)
+    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.Utils.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",$g(tResource))
     
     Set $namespace="FHIRAAS"
     Set %response.ContentType = ..#CONTENTTYPEJSON
