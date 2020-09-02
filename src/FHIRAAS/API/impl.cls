@@ -110,6 +110,10 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
 
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Delete(endpointId))
 
+    set sc = ##class(Security.Users).Delete(tenantId_endpointId)
+    set sc = ##class(Security.Roles).Delete("#"_tenantId_endpointId)
+    set sc = ##class(Security.Resources).Delete("$"_tenantId_endpointId)
+
     
     Quit ""
 }
@@ -120,12 +124,28 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
 ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 {
 
+    New $Namespace
+    set $Namespace=tenantId
+
+    // Get list endpoint for deleting users
+	set endpointList = ##class(HS.FHIRServer.ServiceAdmin).GetEndpointList()
+
     New $namespace
     Set $namespace="%SYS"
 
     Try {
-        
 
+        // Delete users
+        set ptr = 0
+	    while $listnext(endpointList, ptr, tmp) {
+            // Delete Resource, Role, User
+            set endpoint = $P(tmp,"/",*)
+            set sc = ##class(Security.Users).Delete(tenantId_endpoint)
+            set sc = ##class(Security.Roles).Delete("#"_tenantId_endpoint)
+            set sc = ##class(Security.Resources).Delete("$"_tenantId_endpoint)
+	    }
+
+        // Delete others
         Set count = 0
         Set list = ""
         Set path = ""
@@ -183,12 +203,6 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
             Set tSC = ##class(SYS.Database).DeleteDatabase(dir)
             If $$$ISERR(tSC) throw ##Class(%Exception.StatusException).CreateFromStatus(tSC)
         }
-
-        // Delete Resource, Role, User
-        set sc = ##class(Security.Users).Delete(tenantId)
-        set sc = ##class(Security.Roles).Delete("#"_tenantId)
-        set sc = ##class(Security.Resources).Delete("$"_tenantId)
-
 
 	} Catch Error {
 		
@@ -268,7 +282,20 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
         Set tPaylaod = ##class(FHIRAAS.API.Definition.CreateTenant).%New()
         $$$ThrowOnError(tPaylaod.%JSONImport(tenantInformations))
         set password = tPaylaod.rootPassword
+
+        if password '="" {
+            // Create Resouce
+		    set tResource = "$"_$Namespace_endpointId
+            $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateResource(tResource))
+
+            set tRole = "#"_$Namespace_endpointId
+            $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateRole(tRole,tResource))
+
+            set tUser = $Namespace_endpointId
+            $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateUser(tUser,tRole,password))
+        }
     }
+    
 
     // Install elements that are required for a FHIR-enabled namespace
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
@@ -284,7 +311,7 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
     Set metadataConfigKey = "HL7v40"
 
     // Install an instance of a FHIR Service into the current namespace
-    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.Utils.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",password)
+    set jobKey = ##class(HSMOD.REST.Async.API).RunInBackgroundAndReturnJobKey("FHIRAAS.Utils.Utils","InstallInstance",appKey, strategyClass, metadataConfigKey,"",tResource)
     
     Set $namespace="FHIRAAS"
     Set %response.ContentType = ..#CONTENTTYPEJSON

@@ -1,11 +1,11 @@
-## TODO 
+# TODO 
 
 - [x] HTTPS 
 - [x] Generation de tenant en mode async
 - [x] Affiner get tenants/:id
 - [x] Ajouter l'interopérabilité (CCDA,HL7,SDA)
 - [x] Ajouter information production dans json
-- [x] Ajouter les mots de passe par tenant
+- [x] Ajouter les mots de passe par endpoint
 - [x] Ajouter des tests unitaires
 - [ ] Ajouter CORS dans spec swagger
 - [ ] Ajouter FHIR analytics

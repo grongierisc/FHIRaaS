@@ -134,14 +134,13 @@ ClassMethod GetInterfaceMaps(endpoint As %String = "") As %DynamicObject
 	Return out
 }
 
-ClassMethod CreateUser(pRole As %String, pPassword As %String) As %Status
+ClassMethod CreateUser(pUser As %String, pRole As %String, pPassword As %String) As %Status
 {
 	Set tSC=$$$OK
 	Try {
-		Set tUser = $namespace,tUserFullName="FHIRaaS User"
+		Set tUser = pUser,tUserFullName="FHIRaaS User"
 		Set tRole = pRole
 
-		$$$ThrowOnError(tSC)
 		new $namespace
 		set $namespace="%SYS"
 		
@@ -256,7 +255,7 @@ ClassMethod JobRecordToJson(jobRecord As HSMOD.REST.Async.JobRecord) As %Dynamic
 	return json
 }
 
-ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMetadataSetKey As %String, pOAuthClientName As %String = "", pPassword As %String)
+ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMetadataSetKey As %String, pOAuthClientName As %String = "", pResource As %String)
 {
 	TSTART
 	try {
@@ -282,16 +281,6 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		if '$data($$$FSMetaGlobal(metadataSet.Key)) {
 			w "Loading Metadata into Globals",!
 			Do ##class(HS.FHIRServer.Tools.FHIRMetadataSetLoader).BuildGlobals(metadataSet.Key)
-		}
-
-		// Create Resouce
-		set tResource = "$"_$Namespace
-		$$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateResource(tResource))
-
-		if $g(pPassword) '= "" {
-			set tRole = "#"_$Namespace
-			$$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateRole(tRole,tResource))
-			$$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CreateUser(tRole,pPassword))
 		}
 
 		// Create the CSP Application
@@ -328,7 +317,7 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 			Set tProps("GroupById") = ""
 			Set tProps("CookiePath") = ""
 			Set tProps("CSPZENEnabled") = 1
-			Set:($g(pPassword)'="") tProps("Resource") = tResource
+			Set:($g(pResource)'="") tProps("Resource") = pResource
 		}
 		Set tSC=##class(HS.Util.SystemAPI).Invoke("UpdateCSPApp",tNS,pAppKey,$$$NVPairToList(tProps),1,"n")
 		$$$ThrowOnError( tSC )
@@ -356,7 +345,7 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		#dim configData as HS.FHIRServer.API.ConfigData = ##class(HS.FHIRServer.Tools.ConfigEditor).NewDefaultConfig()
 		
 		Set configData.DebugMode = 0
-		Set:($g(pPassword)="") configData.DebugMode = 4
+		Set:($g(pResource)="") configData.DebugMode = 4
 		Set configData.FHIRVersion = metadataSet.FHIRVersion
 		Set configData.FHIRMetadataSet = metadataSet.Key
 		Set configData.InteractionsStrategyClass = pStrategyClass
