@@ -100,12 +100,9 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
 
     set delete = 1
 
-    // Install elements that are required for a FHIR-enabled namespace
-    Do ##class(HS.FHIRServer.Installer).InstallNamespace()
-
     Set appKey = ##class(FHIRAAS.Utils.Utils).GetAppKey(tenantId,endpointId)
 
-    // Install an instance of a FHIR Service into the current namespace
+    // UnInstall an instance of a FHIR Service into the current namespace
     do ##class(HS.FHIRServer.Installer).UninstallInstance(appKey,delete)
 
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Delete(endpointId))

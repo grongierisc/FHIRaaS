@@ -11,10 +11,12 @@
 - [ ] Ajouter FHIR analytics
 - [x] Ajouter une UI par endpoint
 - [ ] Rename fullUrl in FHIR paylaod (variable in hearder HTTP)
+    -   Comment : la variable fullUrl depend de l'appelant : GET 127.0.0.1 = fullUrl en 127.0.0.1, GET en localhost = fullUrl en localhost
 - [x] Convention de nommage des users {nomTenant}{nomEndpoint}
 - [x] Creation de tenant avec "-" "_"
 - [x] Fix deleteTenant back to the deleted tenant
-- [ ] Endpoint Rest POST payload HL7, CCDA
+- [x] Endpoint Rest POST payload HL7, CCDA
+    - eg : POST /v1/fhiraas/{tenant}/hl7/{endpoint}
 - [x] PowerBI FHIR analytics (prendre RDV le 15 ou 16 septembre avec benjamin)
 - [ ] Bug synthea FR (antibio 40 ans, cf mail)
 
