@@ -13,9 +13,9 @@
 - [ ] Rename fullUrl in FHIR paylaod (variable in hearder HTTP)
 - [x] Convention de nommage des users {nomTenant}{nomEndpoint}
 - [x] Creation de tenant avec "-" "_"
-- [ ] Fix deleteTenant back to the deleted tenant
+- [x] Fix deleteTenant back to the deleted tenant
 - [ ] Endpoint Rest POST payload HL7, CCDA
-- [ ] PowerBI FHIR analytics (prendre RDV le 15 ou 16 septembre avec benjamin)
+- [x] PowerBI FHIR analytics (prendre RDV le 15 ou 16 septembre avec benjamin)
 - [ ] Bug synthea FR (antibio 40 ans, cf mail)
 
 # Introduction 
