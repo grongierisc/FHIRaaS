@@ -1098,7 +1098,7 @@ ClassMethod UpdateDatabaseResource(pNamespace As %String, pResource As %String) 
 		Set $Namespace="%SYS"
 		set dir = ##class(Config.Databases).GetDirectory($TR(pNamespace,"%-_","PDU"))
 		set tSC = ##class(SYS.Database).ModifyDatabase(dir,,pResource)
-		w t
+		//w t
 		$$$ThrowOnError(tSC)
 	} catch ex {
 		Set tSC = ex.AsStatus()
