@@ -191,6 +191,15 @@ ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
 	return result
 }
 
+ClassMethod GetEndpointList(tenantId) As %List
+{
+	new $Namespace
+    set $Namespace=tenantId
+
+    // Get list endpoint for deleting users
+	quit ##class(HS.FHIRServer.ServiceAdmin).GetEndpointList()
+}
+
 ClassMethod CleanCompleted() As %Status
 {
 	set records = ..GetJobRecords()

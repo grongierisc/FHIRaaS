@@ -164,7 +164,7 @@ ClassMethod CreateDirectoryItem(item As %String, endpoint As %String) As %Status
 ClassMethod DeleteCspItem(item As %String, endpoint As %String) As %Status
 {
 	set tNS = $Namespace
-	Set tAppKey = "/v1/fhiraas/"_$zcvt($Namespace,"L")_"/"_item
+	Set tAppKey = "/v1/fhiraas/"_$zcvt($Namespace,"L")_"/"_item_"/"_endpoint
 	Set tSC=##class(HS.Util.SystemAPI).Invoke("DeleteCSPApp",tNS,tAppKey,"")
 
 	Quit $$$OK
@@ -173,7 +173,7 @@ ClassMethod DeleteCspItem(item As %String, endpoint As %String) As %Status
 ClassMethod CreateCspItem(item As %String, endpoint As %String) As %Status
 {
 	set tNS = $Namespace
-	Set tAppKey = "/v1/fhiraas/"_$zcvt($Namespace,"L")_"/"_item
+	Set tAppKey = "/v1/fhiraas/"_$zcvt($Namespace,"L")_"/"_item_"/"_endpoint
 	Set tCSPAppExists = ##class(HS.FHIRServer.Installer).CSPAppExists(tAppKey, .appObj)
 
 	// These items definitely need to be set/changed to these values.

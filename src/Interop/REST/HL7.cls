@@ -10,15 +10,15 @@ Parameter HandleCorsRequest = 1;
 XData UrlMap [ XMLNamespace = "http://www.fhirhl7v2demo.com/urlmap" ]
 {
 <Routes>
-  <Route Url="/:endpoint" Method="POST" Call="hl7" Cors="true"/>
+  <Route Url="/" Method="POST" Call="hl7" Cors="true"/>
 </Routes>
 }
 
-ClassMethod hl7(endpoint As %String) As %Status
+ClassMethod hl7() As %Status
 {
     #dim %request as %CSP.Request
 
-    Set tBsName = "HL7_REST_"_endpoint
+    Set tBsName = "HL7_REST_"_$P(%request.URL,"/",*-1)
 
     Set content = $zcvt(%request.Content.Read(),"I","UTF8")
 

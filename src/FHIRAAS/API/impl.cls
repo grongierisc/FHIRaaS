@@ -107,6 +107,8 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
 
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Delete(endpointId))
 
+    New $Namespace
+    Set $Namespace="%SYS"
     set sc = ##class(Security.Users).Delete(tenantId_endpointId)
     set sc = ##class(Security.Roles).Delete("#"_tenantId_endpointId)
     set sc = ##class(Security.Resources).Delete("$"_tenantId_endpointId)
@@ -122,12 +124,9 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 {
     $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CheckNameSpace(tenantId))
 
-    //No new on namespace to not go back to it on exit
-    set $Namespace=tenantId
+    set endpointList = ##class(FHIRAAS.Utils.Utils).GetEndpointList(tenantId)
 
-    // Get list endpoint for deleting users
-	set endpointList = ##class(HS.FHIRServer.ServiceAdmin).GetEndpointList()
-
+    New $Namespace
     Set $namespace="%SYS"
 
     Try {

@@ -10,11 +10,11 @@ Parameter HandleCorsRequest = 1;
 XData UrlMap [ XMLNamespace = "http://www.fhirhl7v2demo.com/urlmap" ]
 {
 <Routes>
-  <Route Url="/:endpoint" Method="POST" Call="cda" Cors="true"/>
+  <Route Url="/" Method="POST" Call="cda" Cors="true"/>
 </Routes>
 }
 
-ClassMethod cda(endpoint As %String) As %Status
+ClassMethod cda() As %Status
 {
     set status = $$$OK
 
@@ -24,7 +24,7 @@ ClassMethod cda(endpoint As %String) As %Status
     
     try {
 
-        Set tBsName = "CDA_REST_"_endpoint
+        Set tBsName = "CDA_REST_"_$P(%request.URL,"/",*-1)
 
         $$$ThrowOnError(##class(Ens.Director).CreateBusinessService(tBsName,.tService))
         
