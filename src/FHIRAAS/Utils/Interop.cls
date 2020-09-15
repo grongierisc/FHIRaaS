@@ -25,12 +25,14 @@ ClassMethod Add(endpoint As %String) As %Status
 
 		Set tSC= ..ProductionModification(,.tArraySub,"HL7Items",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("hl7",endpoint))
+		$$$ThrowOnError(..CreateCspItem("hl7",endpoint))
 
         Set tSC= ..ProductionModification(,.tArraySub,"SDAItems",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("sda",endpoint))
 
         Set tSC= ..ProductionModification(,.tArraySub,"CDAItems",1) Quit:$$$ISERR(tSC)
 		$$$ThrowOnError(..CreateDirectoryItem("cda",endpoint))
+		$$$ThrowOnError(..CreateCspItem("cda",endpoint))
 
 		$$$ThrowOnError(##class(Ens.Director).UpdateProduction())
 
@@ -49,12 +51,13 @@ ClassMethod Delete(endpoint As %String) As %Status
 		Set tArraySub("namespace")= $zcvt($Namespace,"L")
 		Set tArraySub("endpoint")= endpoint
 
-
 		Set tSC= ..DeleteProductionItems(,.tArraySub,"HL7Items",1) Quit:$$$ISERR(tSC)
+		$$$ThrowOnError(..DeleteCspItem("hl7",endpoint))
 
         Set tSC= ..DeleteProductionItems(,.tArraySub,"SDAItems",1) Quit:$$$ISERR(tSC)
 
         Set tSC= ..DeleteProductionItems(,.tArraySub,"CDAItems",1) Quit:$$$ISERR(tSC)
+		$$$ThrowOnError(..DeleteCspItem("cda",endpoint))
 
 		$$$ThrowOnError(##class(Ens.Director).UpdateProduction())
 
@@ -158,6 +161,68 @@ ClassMethod CreateDirectoryItem(item As %String, endpoint As %String) As %Status
 	Quit $$$OK
 }
 
+ClassMethod DeleteCspItem(item As %String, endpoint As %String) As %Status
+{
+	set tNS = $Namespace
+	Set tAppKey = "/v1/fhiraas/"_$zcvt($Namespace,"L")_"/"_item_"/"_endpoint
+	Set tSC=##class(HS.Util.SystemAPI).Invoke("DeleteCSPApp",tNS,tAppKey,"")
+
+	Quit $$$OK
+}
+
+ClassMethod CreateCspItem(item As %String, endpoint As %String) As %Status
+{
+	set tNS = $Namespace
+	Set tAppKey = "/v1/fhiraas/"_$zcvt($Namespace,"L")_"/"_item_"/"_endpoint
+	Set tCSPAppExists = ##class(HS.FHIRServer.Installer).CSPAppExists(tAppKey, .appObj)
+
+	// These items definitely need to be set/changed to these values.
+	Set tProps("Name") = "/v1/fhiraas/"_$zcvt($Namespace,"L")_"/"_item
+	Set tProps("NameSpace") = $Namespace
+	Set tProps("DispatchClass") = "Interop.REST."_$zcvt(item,"U") 
+	Set tProps("AutheEnabled") = ($$$AutheUnauthenticated + $$$AutheCache + $$$AutheDelegated)
+	Set tProps("Description") = item_" Server end point"
+	Set tProps("MatchRoles") = ":%HS_DB_"_$tr(tNS,"%")_":%DB_HSLIB:%DB_HSSYS:%DB_FHIRAAS"
+	set tResource = "$"_$Namespace_endpoint
+	Set:(..ExistsResource(tResource)) tProps("Resource") = tResource
+
+	If tCSPAppExists {
+
+		For name = "Timeout", "InbndWebServicesEnabled", "AutoCompile", "IsNameSpaceDefault", "DeepSeeEnabled", "GroupById", "CSPZENEnabled", "UseCookies", "CookiePath" {
+			Set tProps(name) = $Property(appObj, name)
+		}
+
+	} Else {
+
+		Set tProps("Timeout") = 900
+		Set tProps("InbndWebServicesEnabled") = 0
+		Set tProps("AutoCompile") = 0
+		Set tProps("IsNameSpaceDefault") = 0
+		Set tProps("UseCookies") = 0
+		Set tProps("DeepSeeEnabled") = 0
+		Set tProps("GroupById") = ""
+		Set tProps("CookiePath") = ""
+		Set tProps("CSPZENEnabled") = 1
+		
+	}
+
+	Set tSC=##class(HS.Util.SystemAPI).Invoke("UpdateCSPApp",tNS,tAppKey,$$$NVPairToList(tProps),1,"n")
+	$$$ThrowOnError( tSC )
+
+	Quit $$$OK
+}
+
+ClassMethod ExistsResource(pResource) As %Boolean
+{
+	set tNS = $namespace, result = 0
+	new $namespace
+	set $namespace="%SYS"
+	set result = ##class(Security.Resources).Exists(pResource)
+	new $namespace
+	set $namespace=tNS
+	quit result
+}
+
 ClassMethod CreateDirectory(pPath As %String) As %Status
 {
 	set pPath=##class(%File).NormalizeDirectory(pPath)
@@ -177,6 +242,9 @@ XData HL7Items
   </Item>
   <Item Name="HL7_SDA_${endpoint}" Category="" ClassName="Interop.HL7TransformProcess" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
     <Setting Target="Host" Name="TargetConfigName">SDA_FHIR_${endpoint}</Setting>
+  </Item>
+  <Item Name="HL7_REST_${endpoint}" Category="" ClassName="Interop.HL7Rest" PoolSize="0" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="TargetConfigNames">HL7_SDA_${endpoint}</Setting>
   </Item>
 </Items>
 }
@@ -219,6 +287,9 @@ XData CDAItems
   </Item>
   <Item Name="CDA_SDA_${endpoint}" Category="" ClassName="Interop.CCDATransformProcess" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
     <Setting Target="Host" Name="TargetConfigName">SDA_FHIR_${endpoint}</Setting>
+  </Item>
+  <Item Name="CDA_REST_${endpoint}" Category="" ClassName="Interop.CDARest" PoolSize="0" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="TargetConfigNames">CDA_SDA_${endpoint}</Setting>
   </Item>
 </Items>
 }

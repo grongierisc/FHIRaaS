@@ -100,16 +100,15 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
 
     set delete = 1
 
-    // Install elements that are required for a FHIR-enabled namespace
-    Do ##class(HS.FHIRServer.Installer).InstallNamespace()
-
     Set appKey = ##class(FHIRAAS.Utils.Utils).GetAppKey(tenantId,endpointId)
 
-    // Install an instance of a FHIR Service into the current namespace
+    // UnInstall an instance of a FHIR Service into the current namespace
     do ##class(HS.FHIRServer.Installer).UninstallInstance(appKey,delete)
 
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Delete(endpointId))
 
+    New $Namespace
+    Set $Namespace="%SYS"
     set sc = ##class(Security.Users).Delete(tenantId_endpointId)
     set sc = ##class(Security.Roles).Delete("#"_tenantId_endpointId)
     set sc = ##class(Security.Resources).Delete("$"_tenantId_endpointId)
@@ -123,14 +122,11 @@ ClassMethod deleteEndpoint(tenantId As %String, endpointId As %String) As %Strea
 ///     tenantId, the tenant Id<br/>
 ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 {
+    $$$ThrowOnError(##class(FHIRAAS.Utils.Utils).CheckNameSpace(tenantId))
+
+    set endpointList = ##class(FHIRAAS.Utils.Utils).GetEndpointList(tenantId)
 
     New $Namespace
-    set $Namespace=tenantId
-
-    // Get list endpoint for deleting users
-	set endpointList = ##class(HS.FHIRServer.ServiceAdmin).GetEndpointList()
-
-    New $namespace
     Set $namespace="%SYS"
 
     Try {
@@ -162,8 +158,8 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
         }
         do tRS.Close()
 
-		Set tSC = ##class(Config.Namespaces).Delete(tenantId)
-		If $$$ISERR(tSC) throw ##Class(%Exception.StatusException).CreateFromStatus(tSC)
+		$$$ThrowOnError(##class(Config.Namespaces).Delete(tenantId))
+
 		
 		#; clear application 
 		If count > 0 {
@@ -171,7 +167,7 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 				Set cspName = $PIECE(list,",",n)
                 Set cspPath = $PIECE(path,",",n)
 				#; delete csp application from security
-				Set tSC = ##Class(Security.Applications).Delete(cspName)
+				$$$ThrowOnError(##Class(Security.Applications).Delete(cspName))
                 #; delete csp pages and physical path
 				If (cspPath '= "") {
 					#; delete csp pages in this directory
@@ -188,25 +184,25 @@ ClassMethod deleteTenant(tenantId As %String) As %Stream.Object
 		
 		#; remove Ensemble namespace
 	 	If ((##class(%Library.EnsembleMgr).IsEnsembleInstalled() || ##class(%Library.EnsembleMgr).IsHealthShareInstalled())) {
-	 		Set tSC = ##class(%Library.EnsembleMgr).DisableNamespace($ZCVT(tenantId,"U"))
-	 		If $$$ISERR(tSC) throw ##Class(%Exception.StatusException).CreateFromStatus(tSC)
+	 		$$$ThrowOnError(##class(%Library.EnsembleMgr).DisableNamespace($ZCVT(tenantId,"U")))
 	 	}
 
         // Delete the database from the configuration file
         set del = 1
         If del = 1 {
-            set dir = ##class(Config.Databases).GetDirectory(tenantId) 
-            Set tSC = ##class(Config.Databases).Delete(tenantId)
-            If $$$ISERR(tSC) throw ##Class(%Exception.StatusException).CreateFromStatus(tSC)
-            
+
+            set dir = ##class(Config.Databases).GetDirectory($TR(tenantId,"%-_","PDU")) 
+            $$$ThrowOnError(##class(Config.Databases).Delete($TR(tenantId,"%-_","PDU")))
+
             // Delete the .DAT file
-            Set tSC = ##class(SYS.Database).DeleteDatabase(dir)
-            If $$$ISERR(tSC) throw ##Class(%Exception.StatusException).CreateFromStatus(tSC)
+            $$$ThrowOnError(##class(SYS.Database).DeleteDatabase(dir))
+
         }
 
 	} Catch Error {
-		
+
         $$$ThrowOnError(Error.AsStatus())
+
 	}
 
     Quit ""

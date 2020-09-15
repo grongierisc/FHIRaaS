@@ -1,4 +1,4 @@
-Class Interop.Service.POSTService Extends Ens.BusinessService
+Class Interop.HL7Rest Extends Ens.BusinessService
 {
 
 /// Category to apply to incoming message types to produce a complete DocType specification.<p/>
@@ -26,43 +26,8 @@ Method OnProcessInput(pDocIn As %RegisteredObject, Output pDocOut As %Registered
 {
     set status = $$$OK
 
-    if pDocIn.%IsA("Interop.Msg.AppointmentRequest") {
-        set status = ..Custom(pDocIn,.pDocOut)
-    }
-    ElseIf pDocIn.%IsA("Ens.StreamContainer") {
-        set status = ..CCDA(pDocIn,.pDocOut)
-    }	
-    Else {
-        set status = ..Default(pDocIn,.pDocOut)
-    }
-    
-
-    Quit status
-}
-
-Method CCDA(pDocIn As %RegisteredObject, Output pDocOut As %RegisteredObject) As %Status
-{
-    set status = $$$OK
-    set request = pDocIn
-    
-    try {
-        $$$ThrowOnError(..SendRequestSync("Interop.CCDATransformProcess", request, .pDocOut))
-    } catch ex {
-        set status = ex.AsStatus()
-    }
-    Quit status
-}
-
-Method Custom(pDocIn As %RegisteredObject, Output pDocOut As %RegisteredObject) As %Status
-{
-    set status = $$$OK
-    set request = pDocIn
-    
-    try {
-        $$$ThrowOnError(..SendRequestSync("Interop.CustomTransformProcess", request, .pDocOut))
-    } catch ex {
-        set status = ex.AsStatus()
-    }
+    set status = ..Default(pDocIn,.pDocOut)
+  
     Quit status
 }
 
@@ -77,7 +42,7 @@ Method Default(pDocIn As %RegisteredObject, Output pDocOut As %RegisteredObject)
         //$$$ThrowOnError(..SendRequestSync(..#TARGET, request, .pDocOut))
         for iTarget=1:1:$L(..TargetConfigNames, ",") {
 		    set tOneTarget=$ZStrip($P(..TargetConfigNames,",",iTarget),"<>W")  Continue:""=tOneTarget
-		    set tSC1=..SendRequestSync(tOneTarget,request,.pDocOut)  Set:$$$ISERR(tSC1) tSC=$$$ADDSC(tSC,tSC1)
+		    $$$ThrowOnError(..SendRequestSync(tOneTarget,request,.pDocOut))
 	    }
     } catch ex {
         set status = ex.AsStatus()

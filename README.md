@@ -7,11 +7,20 @@ Modif
 - [x] Affiner get tenants/:id
 - [x] Ajouter l'interopérabilité (CCDA,HL7,SDA)
 - [x] Ajouter information production dans json
-- [x] Ajouter les mots de passe par endpoint
+- [x] Ajouter les mots de passe par endpoint 
 - [x] Ajouter des tests unitaires
 - [ ] Ajouter CORS dans spec swagger
 - [ ] Ajouter FHIR analytics
 - [x] Ajouter une UI par endpoint
+- [ ] Rename fullUrl in FHIR paylaod (variable in hearder HTTP)
+    -   Comment : la variable fullUrl depend de l'appelant : GET 127.0.0.1 = fullUrl en 127.0.0.1, GET en localhost = fullUrl en localhost
+- [x] Convention de nommage des users {nomTenant}{nomEndpoint}
+- [x] Creation de tenant avec "-" "_"
+- [x] Fix deleteTenant back to the deleted tenant
+- [x] Endpoint Rest POST payload HL7, CCDA
+    - eg : POST /v1/fhiraas/{tenant}/hl7/{endpoint}
+- [x] PowerBI FHIR analytics (prendre RDV le 15 ou 16 septembre avec benjamin)
+- [ ] Bug synthea FR (antibio 40 ans, cf mail)
 
 # Introduction 
 This is the FHIR as a Service project (aka : FHIRAAS). It is based on InterSystem's IRIS for Health.
