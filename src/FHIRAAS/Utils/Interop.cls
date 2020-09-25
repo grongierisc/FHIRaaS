@@ -10,6 +10,8 @@ ClassMethod Init(tenant As %String) As %Status
     set tSC = ..ProductionModification(,"","FHIRItems",1) Quit:$$$ISERR(tSC)
 
     $$$ThrowOnError(##class(HS.HC.Util.Installer).StartProduction($namespace,,.tState))
+	set tProdName = ##class(HS.Util.Installer.ConfigItem).GetPropertyValue($namespace,"Production",.tSC)
+	$$$ThrowOnError(##class(Ens.Director).SetAutoStart(tProdName))
 
 	Quit $$$OK
 }
