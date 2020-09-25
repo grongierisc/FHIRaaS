@@ -1,7 +1,9 @@
 zn "HSLIB"
 ; run installer to create namespace
 Set namespace = "FHIRAAS"
-zw ##class(HS.HC.Util.Installer).InstallFoundation("FHIRAAS")
+set pVars = ""
+set pVars("DBInstallDirectory") = "/data/"
+zw ##class(HS.HC.Util.Installer).InstallFoundation("FHIRAAS",.pVars)
 
 ; import source
 zn namespace

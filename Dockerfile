@@ -12,6 +12,11 @@ RUN	mkdir -p /external/data && \
 	chown -R ${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} /external && \
 	chmod -R g+w /external
 
+# prepare data
+RUN	mkdir -p /data && \
+	chown -R ${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} /data && \
+	chmod -R g+w /data
+
 WORKDIR /opt/irisapp
 RUN chown ${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} /opt/irisapp
 USER ${ISC_PACKAGE_MGRUSER}
