@@ -23,7 +23,7 @@ XData UrlMap [ XMLNamespace = "http://www.intersystems.com/urlmap" ]
   <!-- Get this spec -->
   <Route Url="/tenants/_spec" Method="get" Call="getSpec" />
   <!-- Returns a list of tenants. -->
-  <Route Url="/tenants" Method="get" Call="getTenants" />
+  <Route Url="/tenants" Method="get" Call="getTenants" Cors="true"/>
   <!-- Returns a tenant by ID. -->
   <Route Url="/tenants/:tenantId" Method="get" Call="getTenant" />
   <!-- Create a tenant with an ID. -->
