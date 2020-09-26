@@ -1,1 +1,11 @@
-<p>endpoints works!</p>
+<div *ngIf="tenant">
+    <h2>{{tenant.tenantId | lowercase}} Details</h2>
+    <div>
+      <label>Endpoints:
+        <div *ngFor="let endpoint of tenant.endpoints">
+            <span class="url">{{endpoint.name}}</span>
+        </div>
+      </label>
+    </div>
+    <button (click)="goBack()">go back</button>
+  </div>

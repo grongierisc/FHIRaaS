@@ -2,9 +2,11 @@
 <div>
 <div class="tenants">
     <div *ngFor="let tenant of tenants">
+      <a routerLink="/tenants/{{tenant.tenantId}}">
         <span class="badge">{{tenant.tenantId}}</span>
         Total Endpoints : <span class="miniBadge">{{tenant.endpoints.length}}</span>
         Pending Endpoints : <span class="miniBadge">{{tenant.pendingEndpoints.length}}</span>
+      </a>
         <button class="delete" title="delete tenant"
             (click)="deleteTenant(tenant)">x</button>
     </div>
