@@ -1,0 +1,21 @@
+<h1>Tenants</h1>
+<div>
+<div class="tenants">
+    <div *ngFor="let tenant of tenants">
+        <span class="badge">{{tenant.tenantId}}</span>
+        Total Endpoints : <span class="miniBadge">{{tenant.endpoints.length}}</span>
+        Pending Endpoints : <span class="miniBadge">{{tenant.pendingEndpoints.length}}</span>
+        <button class="delete" title="delete tenant"
+            (click)="deleteTenant(tenant)">x</button>
+    </div>
+</div>
+</div>
+<div>
+    <label>Tenant Id:
+      <input #tenantId />
+    </label>
+    <!-- (click) passes input value to add() and then clears the input -->
+    <button (click)="addTenant(tenantId.value); tenantId.value=''">
+      add
+    </button>
+  </div>
