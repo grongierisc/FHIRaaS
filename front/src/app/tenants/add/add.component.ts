@@ -11,24 +11,29 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 export class AddComponent implements OnInit {
 
   tenantForm: FormGroup;
-  tenantId = '';
+
   hide : boolean = true;
-  createEndpoint = new FormControl([{value:false}]);
+  createEndpoint = new FormControl();
 
   constructor(
   private fb: FormBuilder,
   private dialogRef: MatDialogRef<AddComponent>) {}
 
   ngOnInit(): void {
+    this.createEndpoint.setValue(false);
     this.tenantForm = this.fb.group({
-      tenantId: [{value:''}, Validators.required],
-      endpointName : [{value:'endpoint'}],
-      endpointPassword : [{value:''}],
+      tenantId: [{value:'', disabled: false}, Validators.required],
+      endpointName : [{value:'', disabled: !this.createEndpoint.value},Validators.required],
+      endpointPassword : [{value:'', disabled: !this.createEndpoint.value}],
       createEndpoint : this.createEndpoint
     })
   }
 
   submit() {
+
+    if (this.tenantForm.invalid) {
+      return;
+    }
 
     let newTenant: any = {
       tenantId: this.tenantForm.get('tenantId').value,
@@ -40,8 +45,15 @@ export class AddComponent implements OnInit {
     this.dialogRef.close(newTenant)
   }
 
-  getCreateEndpoint() : boolean{
-    return this.createEndpoint.value;
+  createEndpointEvent() : void{
+    if (this.createEndpoint.value) {
+      this.tenantForm.get('endpointName').enable();
+      this.tenantForm.get('endpointPassword').enable();
+    } else {
+      this.tenantForm.get('endpointName').disable();
+      this.tenantForm.get('endpointPassword').disable();
+    }
+
   }
 
 }

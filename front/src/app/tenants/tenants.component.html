@@ -6,7 +6,7 @@
           {{tenant.tenantId}}
         </mat-panel-title>
         <mat-panel-description> Endpoints : <span class="miniBadge">{{tenant.endpoints.length}}</span></mat-panel-description>
-        <button class="delete" title="delete tenant"
+        <button class="delete" title="delete tenant" [disabled]="polling"
           (click)="deleteTenant(tenant)">x</button>
       </mat-expansion-panel-header>
       <div class="indent">

@@ -118,7 +118,7 @@ export class TenantsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.addTenant(result);
+        this.addTenant(result.tenantId);
       }
     });
   }
