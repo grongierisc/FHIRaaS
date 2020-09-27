@@ -1,23 +1,46 @@
 <h1>Tenants</h1>
-<div>
-<div class="tenants">
-    <div *ngFor="let tenant of tenants">
-      <a routerLink="/tenants/{{tenant.tenantId}}">
-        <span class="badge">{{tenant.tenantId}}</span>
-        Total Endpoints : <span class="miniBadge">{{tenant.endpoints.length}}</span>
-        Pending Endpoints : <span class="miniBadge">{{tenant.pendingEndpoints.length}}</span>
-      </a>
+<div class="container">
+    <mat-expansion-panel *ngFor="let tenant of tenants" fxLayout="column" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title >
+          {{tenant.tenantId}}
+        </mat-panel-title>
+        <mat-panel-description> Endpoints : <span class="miniBadge">{{tenant.endpoints.length}}</span></mat-panel-description>
         <button class="delete" title="delete tenant"
-            (click)="deleteTenant(tenant)">x</button>
-    </div>
+          (click)="deleteTenant(tenant)">x</button>
+      </mat-expansion-panel-header>
+      <div class="indent">
+        <div *ngFor="let endpoint of tenant.endpoints">{{endpoint.name}}</div>
+      </div>
+    </mat-expansion-panel>
 </div>
-</div>
-<div>
-    <label>Tenant Id:
-      <input #tenantId />
-    </label>
-    <!-- (click) passes input value to add() and then clears the input -->
-    <button (click)="addTenant(tenantId.value); tenantId.value=''">
-      add
-    </button>
-  </div>
+<p></p>
+<span *ngIf="pendingEndpoints.length > 0" style="height: 20px; display: block;"></span>
+    <mat-expansion-panel *ngFor="let pending of pendingEndpoints"
+                          disabled>
+      <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div style="display: flex">
+              <mat-spinner mode="indeterminate" diameter="20">
+              </mat-spinner>
+              <div>
+                  {{ pending.name }}
+              </div>
+            </div>
+          </mat-panel-title>
+          <mat-panel-description>
+            Building...
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+    </mat-expansion-panel>
+<p></p>
+
+<button mat-flat-button color="primary" aria-label="Add"
+class="fr-primary primary-button" (click)="openAddDialog()">
+Add Teant
+</button>
+
+
+<ngx-spinner bdColor="rgba(51, 51, 51, 0.8)" size="default" type="ball-spin-clockwise">
+  <p style="color: white">Please Wait. </p>
+</ngx-spinner>

@@ -7,5 +7,22 @@
         </div>
       </label>
     </div>
+    <div>
+        <label>Pending Endpoints:
+          <div *ngFor="let pendingEndpoint of tenant.pendingEndpoints">
+              <span class="url">{{pendingEndpoint.name}}</span>
+              <span class="url">{{pendingEndpoint.status}}</span>
+          </div>
+        </label>
+      </div>
     <button (click)="goBack()">go back</button>
+    <div>
+    <label>Endpont Id:
+          <input #endpointId />
+        </label>
+        <!-- (click) passes input value to add() and then clears the input -->
+        <button (click)="addEndpoint(endpointId.value); endpointId.value=''">
+          add
+        </button>
+      </div>
   </div>

@@ -1,0 +1,42 @@
+<div mat-dialog-title class="header">
+    <span class="title">Add a FHIR Tenant</span>
+</div>
+
+  <div mat-dialog-content>
+    <form [formGroup]="tenantForm">
+      <div class="row">
+        <div class="row-item">
+            <mat-form-field appearance="fill" floatLabel="Tenant Name">
+                <mat-label>Tenant Name</mat-label>
+                <input matInput placeholder="">
+            </mat-form-field>
+        </div>
+        <div class="row-item">
+            Create Endpoint <mat-slide-toggle formControlName="createEndpoint" [(ngModel)]="createEndpoint.value" color="primary"></mat-slide-toggle>
+        </div>
+        <div *ngIf="createEndpoint.value"><p></p></div>
+        <div *ngIf="createEndpoint.value">
+            <mat-form-field appearance="fill" floatLabel="Endpoint Name">
+                <mat-label>Endpoint Name</mat-label>
+                <input matInput placeholder="">
+            </mat-form-field>
+        </div>
+        <div *ngIf="createEndpoint.value" >
+            <mat-form-field appearance="fill">
+                <mat-label>Password (optional)</mat-label>
+                <input matInput [type]="hide ? 'password' : 'text'">
+                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <div mat-dialog-actions>
+    <button mat-stroked-button color="primary" class="fr-secondary" mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" aria-label="Import" class="fr-primary" [disabled]="!tenantForm.valid" (click)="submit()">
+      Add
+    </button>
+  </div>
