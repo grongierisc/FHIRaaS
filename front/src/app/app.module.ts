@@ -13,6 +13,11 @@ import { MaterialModule } from './material-module';
 
 import { NgxSpinnerModule } from "ngx-spinner";
 import { AddComponent } from './tenants/add/add.component';
+import { AddEndpointComponent } from './endpoints/add/add.endpoint.component';
+import { AuthGuard } from './auth/auth.guard';
+import { AuthInterceptor } from './auth/auth.interceptor';
+import { AuthService } from './auth/services/auth.service';
+import { AuthModule } from './auth/auth.module';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -21,7 +26,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     AppComponent,
     TenantsComponent,
     EndpointsComponent,
-    AddComponent
+    AddComponent,
+    AddEndpointComponent
   ],
   imports: [
     BrowserModule,  
@@ -33,7 +39,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     NgxSpinnerModule,
     BrowserAnimationsModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,    
+    AuthModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

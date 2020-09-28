@@ -1,5 +1,6 @@
-<h1>Tenants</h1>
+
 <div class="container">
+  <h1>Tenants</h1>
     <mat-expansion-panel *ngFor="let tenant of tenants" fxLayout="column" [expanded]="false">
       <mat-expansion-panel-header>
         <mat-panel-title >
@@ -12,8 +13,12 @@
       <div class="indent">
         <div *ngFor="let endpoint of tenant.endpoints">{{endpoint.name}}</div>
       </div>
+      <button mat-flat-button color="primary" aria-label="Add"
+        class="fr-primary primary-button" (click)="openAddEndpointDialog(tenant)">
+        Add Endpoint
+      </button>
     </mat-expansion-panel>
-</div>
+
 <p></p>
 <span *ngIf="pendingEndpoints.length > 0" style="height: 20px; display: block;"></span>
     <mat-expansion-panel *ngFor="let pending of pendingEndpoints"
@@ -36,10 +41,10 @@
 <p></p>
 
 <button mat-flat-button color="primary" aria-label="Add"
-class="fr-primary primary-button" (click)="openAddDialog()">
-Add Teant
+  class="fr-primary primary-button" (click)="openAddDialog()">
+  Add Tenant
 </button>
-
+</div>
 
 <ngx-spinner bdColor="rgba(51, 51, 51, 0.8)" size="default" type="ball-spin-clockwise">
   <p style="color: white">Please Wait. </p>

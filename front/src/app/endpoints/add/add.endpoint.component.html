@@ -1,0 +1,30 @@
+<div mat-dialog-title class="header">
+    <span class="title">Add a FHIR Endpoint</span>
+</div>
+
+  <div mat-dialog-content>
+    <form [formGroup]="endpointForm">
+      <div class="row">
+            <mat-form-field appearance="legacy" floatLabel="Endpoint Name">
+                <mat-label>Endpoint Name</mat-label>
+                <input matInput formControlName="endpointName">
+            </mat-form-field>
+        </div>
+        <div class="row">
+            <mat-form-field appearance="legacy">
+                <mat-label>Password (optional)</mat-label>
+                <input matInput formControlName="endpointPassword" [type]="hide ? 'password' : 'text'">
+                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+    </form>
+  </div>
+  
+  <div mat-dialog-actions>
+    <button mat-stroked-button color="primary" class="fr-secondary" mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" aria-label="Import" class="fr-primary" [disabled]="!endpointForm.valid" (click)="submit()">
+      Add
+    </button>
+  </div>

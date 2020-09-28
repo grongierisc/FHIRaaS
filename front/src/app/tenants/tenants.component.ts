@@ -8,6 +8,7 @@ import { MatDialog} from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxSpinnerService } from "ngx-spinner"; 
 import { AddComponent } from './add/add.component';
+import { AddEndpointComponent } from '../endpoints/add/add.endpoint.component';
 
 
 @Component({
@@ -60,8 +61,26 @@ export class TenantsComponent implements OnInit {
       .subscribe(pendingEndpoint => {
         this.spinnerService.hide();  
         this.pendingEndpoints.push(pendingEndpoint);
-        this.pollingEndpoints();
+        this.getTenants();
         this._snackBar.open(id+' created!','Close', {
+          duration: 5000
+        });
+      },
+      error => {
+        console.log(error);
+      });
+  }
+
+  addEndpoint(tenantId: string,endpointId: string): void {
+    tenantId = tenantId.trim();
+    if (!tenantId) { return; }
+    this.spinnerService.show();  
+    this.fhiraaService.putEndpoint(tenantId,endpointId)
+      .subscribe(pendingEndpoint => {
+        this.spinnerService.hide();  
+        this.pendingEndpoints.push(pendingEndpoint);
+        this.getTenants();
+        this._snackBar.open(endpointId+' created!','Close', {
           duration: 5000
         });
       },
@@ -73,7 +92,7 @@ export class TenantsComponent implements OnInit {
   getTenants(): void {
     this.fhiraaService.getTenants().subscribe(        
       tenants => {
-          this.tenants = tenants;      
+          this.tenants = tenants;
           if (this.pendingEndpoints.length > 0 && !this.polling) {
             this.pollingEndpoints();
           };
@@ -93,7 +112,6 @@ export class TenantsComponent implements OnInit {
     .subscribe(        
       tenants => {
           this.pendingEndpoints = new Array();
-          this.tenants = tenants;
           tenants.forEach(tenant => {
             tenant.pendingEndpoints.forEach(pendingEndpoint => {
               this.pendingEndpoints.push(pendingEndpoint);
@@ -101,6 +119,7 @@ export class TenantsComponent implements OnInit {
           if (this.pendingEndpoints.length === 0) {
             this.polling = false;
             poll$.unsubscribe();
+            this.tenants = tenants;
           }
           });
           },
@@ -119,6 +138,19 @@ export class TenantsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.addTenant(result.tenantId);
+      }
+    });
+  }
+
+  openAddEndpointDialog(tenant:Tenant): void {
+    const dialogRef = this._dialog.open(AddEndpointComponent, {
+      panelClass: 'modal-panel',
+      width: '700px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addEndpoint(tenant.tenantId,result.endpointName);
       }
     });
   }
