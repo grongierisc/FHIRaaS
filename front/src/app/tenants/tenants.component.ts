@@ -212,6 +212,9 @@ export class TenantsComponent implements OnInit {
     const dialogRef = this._dialog.open(FhirComponent, {
       panelClass: 'modal-panel',
       width: '700px',
+      data: {
+        packages: endpoint
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {

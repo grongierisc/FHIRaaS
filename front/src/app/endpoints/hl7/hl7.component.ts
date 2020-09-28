@@ -110,9 +110,13 @@ export class Hl7Component implements OnInit {
     let name = this.endpoint.name
     this.hl7Service.import(this.file,name).subscribe((data: any) => {
       this.spinnerService.hide(); 
-      this._snackBar.open('File sent!', 'View Trace', { duration: null})
-      //.onAction()
-      //.subscribe(() => this.router.navigateByUrl('/app/user/detail'));
+      this._snackBar.open('File sent!', 'View Trace', { duration: 10000})
+      .onAction()
+      .subscribe(() =>  
+        ///v1/fhiraas/synodis/fhir/r4/endpoint 
+        this.window_open('http://localhost:52773/csp/healthshare/'+name.split('/')[3]+'/EnsPortal.MessageViewer.zen')
+    
+      );
 
       this.reset()
 
@@ -123,6 +127,13 @@ export class Hl7Component implements OnInit {
       this._snackBar.open("Failed : "+error.message,'Close');
 
   })
+  }
+
+    // Open a window with the given URL
+    window_open(url: any) {
+      var winReference = window.open();
+      winReference.location = url;
+      winReference.parent.focus();
   }
 
   // convenience getter for easy access to form fields
