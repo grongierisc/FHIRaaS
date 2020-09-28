@@ -20,8 +20,8 @@ export class AddEndpointComponent implements OnInit {
 
   ngOnInit(): void {
     this.endpointForm = this.fb.group({
-      endpointName : [{value:''},Validators.required],
-      endpointPassword : [{value:''}],
+      endpointName : [],
+      endpointPassword : [],
     })
   }
 

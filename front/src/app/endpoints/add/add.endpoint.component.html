@@ -7,13 +7,13 @@
       <div class="row">
             <mat-form-field appearance="legacy" floatLabel="Endpoint Name">
                 <mat-label>Endpoint Name</mat-label>
-                <input matInput formControlName="endpointName">
+                <input matInput formControlName="endpointName" required>
             </mat-form-field>
         </div>
         <div class="row">
             <mat-form-field appearance="legacy">
                 <mat-label>Password (optional)</mat-label>
-                <input matInput formControlName="endpointPassword" [type]="hide ? 'password' : 'text'">
+                <input matInput formControlName="endpointPassword" [type]="hide ? 'password' : 'text'" >
                 <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>

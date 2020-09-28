@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DefaultService } from '../fhiraas-api';
+import { DefaultService, Endpoint } from '../fhiraas-api';
 import { Tenant } from '../fhiraas-api/model/tenant';
 import { PendingEndpoint } from '../fhiraas-api/model/pendingEndpoint';
 import { flatMap } from 'rxjs/operators';
@@ -50,6 +50,22 @@ export class TenantsComponent implements OnInit {
         console.log(error);
       });
       this.tenants = this.tenants.filter(obj => obj !== tenant);
+  }
+
+  deleteEndpoint(tenant : Tenant,endpoint : Endpoint){
+    this.spinnerService.show();
+    this.fhiraaService.deleteEndpoint(tenant.tenantId,endpoint.name.split('/').pop()).subscribe(        
+      res => {
+        this.spinnerService.hide();  
+        this._snackBar.open(endpoint.name+' deleted!','Close', {
+          duration: 5000
+        });
+        console.log(res);
+        this.getTenants();
+      },
+      error => {
+        console.log(error);
+      });
   }
   
 
