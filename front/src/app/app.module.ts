@@ -20,6 +20,9 @@ import { AuthService } from './auth/services/auth.service';
 import { AuthModule } from './auth/auth.module';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Hl7Component } from './endpoints/hl7/hl7.component';
+import { CdaComponent } from './endpoints/cda/cda.component';
+import { FhirComponent } from './endpoints/fhir/fhir.component';
 
 @NgModule({ 
   declarations: [
@@ -27,7 +30,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     TenantsComponent,
     EndpointsComponent,
     AddComponent,
-    AddEndpointComponent
+    AddEndpointComponent,
+    Hl7Component,
+    CdaComponent,
+    FhirComponent
   ],
   imports: [
     BrowserModule,  

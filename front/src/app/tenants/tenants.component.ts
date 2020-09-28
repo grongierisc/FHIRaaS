@@ -9,6 +9,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxSpinnerService } from "ngx-spinner"; 
 import { AddComponent } from './add/add.component';
 import { AddEndpointComponent } from '../endpoints/add/add.endpoint.component';
+import { CdaComponent } from '../endpoints/cda/cda.component';
+import { Hl7Component } from '../endpoints/hl7/hl7.component';
+import { FhirComponent } from '../endpoints/fhir/fhir.component';
 
 
 @Component({
@@ -127,17 +130,19 @@ export class TenantsComponent implements OnInit {
     )
     .subscribe(        
       tenants => {
+          var tPendingEndpoints = 0;
           this.pendingEndpoints = new Array();
           tenants.forEach(tenant => {
             tenant.pendingEndpoints.forEach(pendingEndpoint => {
               this.pendingEndpoints.push(pendingEndpoint);
+              tPendingEndpoints = tPendingEndpoints+1;
             });
-          if (this.pendingEndpoints.length === 0) {
+          });
+          if (tPendingEndpoints === 0) {
             this.polling = false;
             poll$.unsubscribe();
             this.tenants = tenants;
           }
-          });
           },
           error => {
             console.log(error);
@@ -167,6 +172,51 @@ export class TenantsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.addEndpoint(tenant.tenantId,result.endpointName);
+      }
+    });
+  }
+
+  openHL7Dialog(endpoint:Endpoint): void {
+    const dialogRef = this._dialog.open(Hl7Component, {
+      panelClass: 'modal-panel',
+      width: '700px',
+      data: {
+        packages: endpoint
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addTenant(result.tenantId);
+      }
+    });
+  }
+
+  openCDADialog(endpoint:Endpoint): void {
+    const dialogRef = this._dialog.open(CdaComponent, {
+      panelClass: 'modal-panel',
+      width: '700px',
+      data: {
+        packages: endpoint
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addTenant(result.tenantId);
+      }
+    });
+  }
+
+  openFHIRDialog(endpoint:Endpoint): void {
+    const dialogRef = this._dialog.open(FhirComponent, {
+      panelClass: 'modal-panel',
+      width: '700px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addTenant(result.tenantId);
       }
     });
   }
