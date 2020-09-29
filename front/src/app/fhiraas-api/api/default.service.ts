@@ -25,12 +25,13 @@ import { Tenant } from '../model/tenant';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable()
 export class DefaultService {
 
-    protected basePath = 'http://localhost:52773/fhiraas/v1';
+    protected basePath = environment.BASE_PATH+'/fhiraas/v1';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 

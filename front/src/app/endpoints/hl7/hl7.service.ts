@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class Hl7Service {
     let protocole = location.protocol
 
     //let base = protocole+'://'+host
-    let base = 'http://localhost:52773'
+    let base = environment.BASE_PATH
 
     let path = endpointName.replace('fhir/r4','hl7')+'/'
  

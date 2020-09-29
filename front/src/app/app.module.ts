@@ -23,7 +23,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Hl7Component } from './endpoints/hl7/hl7.component';
 import { CdaComponent } from './endpoints/cda/cda.component';
 import { FhirComponent } from './endpoints/fhir/fhir.component';
-import { PatientsComponent } from './endpoints/fhir/patients/patients.component';
 
 @NgModule({ 
   declarations: [
@@ -35,7 +34,7 @@ import { PatientsComponent } from './endpoints/fhir/patients/patients.component'
     Hl7Component,
     CdaComponent,
     FhirComponent,
-    PatientsComponent
+
   ],
   imports: [
     BrowserModule,  

@@ -2,8 +2,11 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+import { BASE_PATH } from 'src/app/fhiraas-api';
+
 export const environment = {
-  production: false
+  production: false,
+  BASE_PATH : 'http://localhost:52773'
 };
 
 /*

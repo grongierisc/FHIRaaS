@@ -5,6 +5,7 @@ import { CdaService } from './cda.service'
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Endpoint } from 'src/app/fhiraas-api';
 import { NgxSpinnerService } from "ngx-spinner"; 
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-cda',
@@ -113,7 +114,7 @@ export class CdaComponent implements OnInit {
       .onAction()
       .subscribe(() =>  
         ///v1/fhiraas/synodis/fhir/r4/endpoint 
-        this.window_open('http://localhost:52773/csp/healthshare/'+name.split('/')[3]+'/EnsPortal.MessageViewer.zen')
+        this.window_open(environment.BASE_PATH+'/csp/healthshare/'+name.split('/')[3]+'/EnsPortal.MessageViewer.zen')
     
       );
       this.reset()

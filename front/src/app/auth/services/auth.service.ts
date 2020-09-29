@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpInterceptor, HttpRequest, HttpHandler, Htt
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, ReplaySubject, Observable, throwError } from 'rxjs';
 import { map, distinctUntilChanged, tap, catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 /**
  * Authentication Service
@@ -11,7 +12,7 @@ import { map, distinctUntilChanged, tap, catchError } from 'rxjs/operators';
 export class AuthService {
   
   /** Backend API used to login. We can use any URL that will enforce an IRIS Basic Auth */
-  authApiUrl: string = 'http://localhost:52773/fhiraas/v1/tenants';
+  authApiUrl: string = environment.BASE_PATH+'/fhiraas/v1/tenants';
 
   /** isLoginSubject is used to know if the user is logged in or not */
   isLoginSubject = new BehaviorSubject<boolean>(this.authenticated());
