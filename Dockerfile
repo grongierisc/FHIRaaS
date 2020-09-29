@@ -21,7 +21,9 @@ WORKDIR /opt/irisapp
 RUN chown ${ISC_PACKAGE_MGRUSER}:${ISC_PACKAGE_IRISGROUP} /opt/irisapp
 USER ${ISC_PACKAGE_MGRUSER}
 
-COPY  . .
+COPY front/dist/FHIRaaS /usr/irissys/csp/fhiraas
+COPY src src
+COPY misc misc
 COPY iris.script /tmp/iris.script
 
 # run iris and initial 
