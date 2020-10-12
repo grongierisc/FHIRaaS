@@ -10,6 +10,8 @@ ClassMethod Init(tenant As %String) As %Status
     set tSC = ..ProductionModification(,"","FHIRItems",1) Quit:$$$ISERR(tSC)
 
     $$$ThrowOnError(##class(HS.HC.Util.Installer).StartProduction($namespace,,.tState))
+	set tProdName = ##class(HS.Util.Installer.ConfigItem).GetPropertyValue($namespace,"Production",.tSC)
+	$$$ThrowOnError(##class(Ens.Director).SetAutoStart(tProdName))
 
 	Quit $$$OK
 }
@@ -150,13 +152,13 @@ ClassMethod GetXDataAsStreamWithSubstitutions(pXData, pArraySubstitut, ByRef pSt
 ClassMethod CreateDirectoryItem(item As %String, endpoint As %String) As %Status
 {
 	set tPath = "/tmp/share/"_$namespace_"/"_item_"/in/"_endpoint_"/"
-	$$$ThrowOnError(..CreateDirectory(tPath))
+	do ..CreateDirectory(tPath)
 
 	set tPath = "/tmp/share/"_$namespace_"/"_item_"/out/"_endpoint_"/"
-	$$$ThrowOnError(..CreateDirectory(tPath))
+	do ..CreateDirectory(tPath)
 
 	set tPath = "/tmp/share/"_$namespace_"/"_item_"/tmp/"_endpoint_"/"
-	$$$ThrowOnError(..CreateDirectory(tPath))
+	do ..CreateDirectory(tPath)
 
 	Quit $$$OK
 }

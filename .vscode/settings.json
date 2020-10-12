@@ -5,28 +5,16 @@
         "iris.script": "objectscript"
       },
     "objectscript.conn" :{
-      "ns": "FHIRAAS",
-      "active": true,
+      "host": "localhost",
+      "port": 52773,
       "username": "SuperUser",
+      "ns": "FHIRAAS",
       "docker-compose": {
         "service": "iris",
         "internalPort": 52773
-      }
-    },
-    "sqltools.connections": [
-      {
-        "askForPassword": false,
-        "connectionMethod": "Server and Port",
-        "driver": "InterSystems IRIS",
-        "name": "FHIRAAS",
-        "namespace": "HSLIB",
-        "password": "SYS",
-        "port": 52773,
-        "previewLimit": 50,
-        "server": "localhost",
-        "showSystem": false,
-        "username": "SuperUser"
-      }
-    ]
+      },
+      "active": true
+    }
+
 
 }

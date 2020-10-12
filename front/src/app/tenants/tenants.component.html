@@ -1,0 +1,64 @@
+<div class="container">
+  <h1>Tenants</h1>
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let tenant of tenants" fxLayout="column" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{tenant.tenantId}}
+        </mat-panel-title>
+        <mat-panel-description *ngIf="tenant.pendingEndpoints.length == 0"> Endpoints : {{tenant.endpoints.length}}</mat-panel-description>
+        <mat-panel-description *ngIf="tenant.pendingEndpoints.length > 0">
+          Endpoints : {{tenant.endpoints.length}} and Building... {{ tenant.pendingEndpoints.length }} endpoints  
+          <mat-spinner style="margin-left: 5px;" mode="indeterminate" diameter="20">
+          </mat-spinner>
+        </mat-panel-description>
+        <img src="assets/img/delete.svg" class="delete" width="14px" alt="x" (click)="deleteTenant(tenant)">
+      </mat-expansion-panel-header>
+      <mat-expansion-panel *ngFor="let endpoint of tenant.endpoints">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{endpoint.name}}
+          </mat-panel-title>
+          <img src="assets/img/delete.svg" class="delete" width="12px" alt="x" (click)="deleteEndpoint(tenant,endpoint)">
+        </mat-expansion-panel-header>
+        <button mat-button aria-label="HL7v2" class="test"
+        (click)="openHL7Dialog(endpoint)">
+            HL7v2
+        </button>
+        <button mat-button color="primary" aria-label="CCDA" class="test"
+        (click)="openCDADialog(endpoint)">
+            CCDA
+        </button>
+        <button mat-button color="accent" aria-label="FHIR" class="test"
+        (click)="openFHIRDialog(endpoint)">
+            FHIR
+        </button>
+      </mat-expansion-panel>
+      <mat-expansion-panel *ngFor="let endpoint of tenant.pendingEndpoints">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{endpoint.name}}
+          </mat-panel-title>
+          <mat-panel-description>
+            Building... 
+            <mat-spinner style="margin-left: 5px;" mode="indeterminate" diameter="20">
+            </mat-spinner>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+      </mat-expansion-panel>
+      <p></p>
+      <button mat-flat-button color="primary" aria-label="Add" class="fr-primary primary-button"
+        (click)="openAddEndpointDialog(tenant)" [disabled]="tenant.pendingEndpoints.length > 0">
+        Add Endpoint
+      </button>
+    </mat-expansion-panel>
+  </mat-accordion>
+<p></p>
+  <button mat-flat-button color="primary" aria-label="Add" class="fr-primary primary-button" (click)="openAddDialog()">
+    Add Tenant
+  </button>
+</div>
+
+<ngx-spinner bdColor="rgba(51, 51, 51, 0.8)" size="default" type="ball-spin-clockwise">
+  <p style="color: white">Please Wait. </p>
+</ngx-spinner>

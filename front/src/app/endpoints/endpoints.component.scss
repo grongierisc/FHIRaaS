@@ -1,0 +1,92 @@
+mat-card {
+    margin: 10px 150px 10px 50px;
+}
+
+@mixin focusStyle {
+    box-sizing: border-box;
+    outline-color:#008F8A;
+    outline-style: solid;
+    outline-offset: 1px;
+    outline-width: 2px;
+}
+
+.description-bar {
+    display: flex;
+    justify-content: space-between;
+}
+
+.content-pane {
+    margin-top: 20px;
+    margin-right: 30px;
+    margin-bottom: 10px;
+}
+
+.primary-button {
+    display: grid;
+    margin-right: 30px;
+}
+
+mat-label {
+    font-weight: bold;
+}
+mat-card {
+    > div {
+        display: flex;
+    }
+}
+
+mat-tree {
+    margin-right: 100px;
+}
+
+.help-link {
+    margin-top: 3px;
+    font-size: smaller;
+}
+
+.content-pane {
+    mat-tree-node {
+        > a {
+            display: flex;
+            margin: 5px;
+        }
+        .active-link {
+            border: #333695 2px solid;
+            margin: 3px;
+        }
+    }
+
+    a {
+        padding: 10px;
+        text-decoration: none;
+    }
+    a:focus {
+        color: #333695;
+    }
+    a:hover {
+        @include focusStyle();
+    }
+}
+
+.version-text {
+    color: grey;
+    padding-left: 10px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.details-pane {
+    width: 100%;
+    .details-title {
+        margin-top: 1.33em;
+        h3, span {
+            display: inline;
+            vertical-align: middle;
+        }
+        span {
+            padding-left: 20px;
+        }
+    }
+}

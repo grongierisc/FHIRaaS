@@ -266,7 +266,6 @@ ClassMethod JobRecordToJson(jobRecord As HSMOD.REST.Async.JobRecord) As %Dynamic
 
 ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMetadataSetKey As %String, pOAuthClientName As %String = "", pResource As %String)
 {
-	TSTART
 	try {
 		// Ensure we can get a metadataSet
 		Set metadataSet = ##class(HS.FHIRServer.FHIRMetadataSet).%OpenId(pMetadataSetKey)
@@ -370,11 +369,11 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		Set interactions = strategy.NewInteractionsInstance()
 		do interactions.SetMetadata( strategy.GetMetadataResource() )
 	} catch ex {
-		TROLLBACK 1
+
 		throw ex
 	}
 	// Success, Commit any changes
-	TCOMMIT
+	
 }
 
 ClassMethod ReturnPendingEndpoints(clearCompleted As %Boolean, name As %String = "", interactionsStrategyClass As %String = "", metadataSet As %String = "") As %DynamicArray
