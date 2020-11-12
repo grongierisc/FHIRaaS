@@ -17,7 +17,7 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build image
+  displayName: Test de l'API FHIRaaS
   jobs:  
   - job: Build
     displayName: Lancement des Tests
