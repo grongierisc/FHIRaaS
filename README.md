@@ -38,6 +38,7 @@ All can be done throw REST endpoint defined in misc/iris-api-operations.json
 Run the server
 
 ```sh
+cd FHIRaaS
 docker-compose up -d
 ```
 
@@ -115,22 +116,23 @@ Visual Studio Directory Structure
 
 ```
 .
-├── misc
-│   ├── samples
-│   │   └── hl7 and cda examples
-...
-├── share
-│   ├── tenantId
-│   │   ├── cda, hl7, sda
-│   │   │   └── list of in, out, tmp directories
-...
-├── src
-│   ├── FHIRAAS
-│   │   ├── API     //API for FHIRAAS
-│   │   ├── Utils   //Helper methodes
-│   │   ├── HS      //Fix for SDA -> FHIR
-│   │   └── Interop //Interop specific developement
-...
+├──FHIRaaS
+│   ├── misc
+│   │   ├── samples
+│   │   │   └── hl7 and cda examples
+│   ...
+│   ├── share
+│   │   ├── tenantId
+│   │   │   ├── cda, hl7, sda
+│   │   │   │   └── list of in, out, tmp directories
+│   ...
+│   ├── src
+│   │   ├── FHIRAAS
+│   │   │   ├── API     //API for FHIRAAS
+│   │   │   ├── Utils   //Helper methodes
+│   │   │   ├── HS      //Fix for SDA -> FHIR
+│   │   │   └── Interop //Interop specific developement
+│   ...
 ```
 
  ## Test this module
