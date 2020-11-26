@@ -12,6 +12,12 @@ import os
 port = "52773"
 ip = "127.0.0.1" # or localhost
 
+# Type de fichier
+
+CDA = "cda"
+HL7 = "hl7"
+FHIR = "fhir/r4"
+
 try:
     user = os.environ['USER']
     pwd =  os.environ['PASSWORD']
@@ -139,6 +145,21 @@ def del_endpoint(tenant_name, endpoint_name):
         raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
     return r
 
+def post_data(tenant_name, endpoint_name, data, file_type):
+    post = "http://"+ip+":"+port+"/v1/fhiraas/"+tenant_name+"/"+file_type"/"+endpoint_name+"/"
+    if file_type == CDA:
+        header = {'Content-Type':'text/xml'}
+    elif file_type == HL7:
+        header = {'Content-Type':'text/plain'}
+    elif file_type == FHIR:
+        header = {'Content-Type': 'application/json'}
+    else:
+        raise Exception("  --> " + post + "\n  --> Error: hl7, cda, fhir" + " but got " + str(r.status_code))
+    r = requests.post(post, auth=HTTPBasicAuth(user, pwd), headers=header)
+    if (r.status_code != 200):
+        raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
+    return r
+
 #####################################################################
                         # Sous-Fonction TEST #
             # Fonctions appelées dans les fonctions Test #
@@ -224,6 +245,24 @@ def test_get_endpoint(tenant_name, endpoint_name):
 def test_del_endpoint(tenant_name, endpoint_name):
     try:
         del_endpoint(tenant_name, endpoint_name)
+    except Exception as err:
+        raise Exception(str(err))
+
+def test_post_cda(tenant_name, endpoint_name, data,file_type=CDA):
+     try:
+        post_data(tenant_name, endpoint_name, data, file_type)
+    except Exception as err:
+        raise Exception(str(err))
+
+def test_post_hl7(tenant_name, endpoint_name, data,file_type=HL7):
+     try:
+        post_data(tenant_name, endpoint_name, data, file_type)
+    except Exception as err:
+        raise Exception(str(err))
+
+def test_post_cda(tenant_name, endpoint_name, data,file_type=FHIR):
+     try:
+        post_data(tenant_name, endpoint_name, data, file_type)
     except Exception as err:
         raise Exception(str(err))
 
@@ -313,6 +352,10 @@ def Test_Basic(user = user, pwd = pwd, endpoints_list=["York", "Paris", "London"
         return 0
 
 ########################################################
+            # Tester le post de fichiers #
+########################################################
+
+########################################################
                     # Execution #
 ########################################################
 
@@ -329,9 +372,12 @@ if c >= 10:
     print("TIMED OUT -> " + str(req.status_code))
     print(req)
     exit(84)
-
 print("Connection to IRIS: SUCCES")
-#start_time = time.clock()
+
+# Extraire les fichiers samples pour les tests
+
+
+#
 try:
     # Execute la Test_Basic
     s = Test_Basic()
