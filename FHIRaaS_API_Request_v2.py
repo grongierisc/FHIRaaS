@@ -148,17 +148,23 @@ def del_endpoint(tenant_name, endpoint_name):
 
 def post_data(tenant_name, endpoint_name, file, file_type):
     post = "http://"+ip+":"+port+"/v1/fhiraas/"+tenant_name+"/"+file_type+"/"+endpoint_name+"/"
+    data
     if file_type == CDA:
         header = {'Content-Type':'text/xml'}
+        with open(file) as xml:
+            data = xml
     elif file_type == HL7:
         header = {'Content-Type':'text/plain'}
+        with open(file) as txt:
+            data = txt
     elif file_type == FHIR:
         header = {'Content-Type': 'application/json'}
         with open(file) as json_file:
             json_data = json.load(json_file)
+        data = json.dumps(json_data)
     else:
         raise Exception("  --> " + post + "\n  --> Error: hl7, cda, fhir" + " but got " + str(r.status_code))
-    r = requests.post(post, auth=HTTPBasicAuth(user, pwd), headers=header, data=json.dumps(json_data))
+    r = requests.post(post, auth=HTTPBasicAuth(user, pwd), headers=header, data=data)
     if (r.status_code != 200):
         raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
     return r
@@ -263,7 +269,7 @@ def test_post_hl7(tenant_name, endpoint_name, file,file_type=HL7):
     except Exception as err:
         raise Exception(str(err))
 
-def test_post_cda(tenant_name, endpoint_name, file,file_type=FHIR):
+def test_post_fhir(tenant_name, endpoint_name, file,file_type=FHIR):
      try:
         post_data(tenant_name, endpoint_name, file, file_type)
     except Exception as err:
@@ -357,7 +363,13 @@ def Test_Basic(user = user, pwd = pwd, endpoints_list=["York", "Paris", "London"
 ########################################################
             # Tester le post de fichiers #
 ########################################################
-
+def Test_post_data(user = user, pwd = pwd, endpoints_list=["York"], tenants_list=["Lorem"], path_to_sample="./FHIRaaS/misc/samples/"):
+    try:
+        test_put_tenant(tenants_list[0])
+        test_put_endpoint(endpoints_list[0])
+        test_post_fhir((tenants_list[0],endpoints_list[0],path_to_sample+"patient_bundle.json",FHIR)
+    except Exception as err:
+        print(str(err))
 ########################################################
                     # Execution #
 ########################################################
@@ -383,7 +395,8 @@ print("Connection to IRIS: SUCCES")
 #
 try:
     # Execute la Test_Basic
-    s = Test_Basic()
+    #s = Test_Basic()
+    Test_post_data()
 except Exception as err:
     print(str(err))
 
