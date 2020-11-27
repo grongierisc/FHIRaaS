@@ -247,7 +247,6 @@ def test_get_endpoint(tenant_name, endpoint_name):
     try :
         get_endpoint(tenant_name, endpoint_name)
     except Exception as err:
-        print(str(err))
         raise Exception(str(err))
 
 # Test la fonction DEL tenant/endpoint
@@ -366,8 +365,8 @@ def Test_Basic(user = user, pwd = pwd, endpoints_list=["York", "Paris", "London"
 def Test_post_data(user = user, pwd = pwd, endpoints_list=["York"], tenants_list=["Lorem"], path_to_sample="./FHIRaaS/misc/samples/"):
     try:
         test_put_tenant(tenants_list[0])
-        test_put_endpoint(endpoints_list[0])
-        test_post_fhir((tenants_list[0], endpoints_list[0], path_to_sample+"patient_bundle.json", FHIR)
+        test_put_endpoint(tenants_list[0], endpoints_list[0])
+        test_post_fhir(tenants_list[0], endpoints_list[0], path_to_sample+"patient_bundle.json", FHIR)
     except Exception as err:
         print(str(err))
     return 0
