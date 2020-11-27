@@ -257,19 +257,19 @@ def test_del_endpoint(tenant_name, endpoint_name):
         raise Exception(str(err))
 
 def test_post_cda(tenant_name, endpoint_name, file,file_type=CDA):
-     try:
+    try:
         post_data(tenant_name, endpoint_name, file, file_type)
     except Exception as err:
         raise Exception(str(err))
 
 def test_post_hl7(tenant_name, endpoint_name, file,file_type=HL7):
-     try:
+    try:
         post_data(tenant_name, endpoint_name, file, file_type)
     except Exception as err:
         raise Exception(str(err))
 
 def test_post_fhir(tenant_name, endpoint_name, file,file_type=FHIR):
-     try:
+    try:
         post_data(tenant_name, endpoint_name, file, file_type)
     except Exception as err:
         raise Exception(str(err))
