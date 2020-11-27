@@ -367,9 +367,10 @@ def Test_post_data(user = user, pwd = pwd, endpoints_list=["York"], tenants_list
     try:
         test_put_tenant(tenants_list[0])
         test_put_endpoint(endpoints_list[0])
-        test_post_fhir((tenants_list[0],endpoints_list[0],path_to_sample+"patient_bundle.json",FHIR)
+        test_post_fhir((tenants_list[0], endpoints_list[0], path_to_sample+"patient_bundle.json", FHIR)
     except Exception as err:
         print(str(err))
+    return 0
 ########################################################
                     # Execution #
 ########################################################
@@ -396,7 +397,7 @@ print("Connection to IRIS: SUCCES")
 try:
     # Execute la Test_Basic
     #s = Test_Basic()
-    Test_post_data()
+    s = Test_post_data()
 except Exception as err:
     print(str(err))
 
