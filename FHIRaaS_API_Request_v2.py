@@ -4,6 +4,7 @@
 # Importation des modules
 import requests
 import time
+import json
 from requests.auth import HTTPBasicAuth
 import os
 
@@ -145,17 +146,19 @@ def del_endpoint(tenant_name, endpoint_name):
         raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
     return r
 
-def post_data(tenant_name, endpoint_name, data, file_type):
-    post = "http://"+ip+":"+port+"/v1/fhiraas/"+tenant_name+"/"+file_type"/"+endpoint_name+"/"
+def post_data(tenant_name, endpoint_name, file, file_type):
+    post = "http://"+ip+":"+port+"/v1/fhiraas/"+tenant_name+"/"+file_type+"/"+endpoint_name+"/"
     if file_type == CDA:
         header = {'Content-Type':'text/xml'}
     elif file_type == HL7:
         header = {'Content-Type':'text/plain'}
     elif file_type == FHIR:
         header = {'Content-Type': 'application/json'}
+        with open(file) as json_file:
+            json_data = json.load(json_file)
     else:
         raise Exception("  --> " + post + "\n  --> Error: hl7, cda, fhir" + " but got " + str(r.status_code))
-    r = requests.post(post, auth=HTTPBasicAuth(user, pwd), headers=header)
+    r = requests.post(post, auth=HTTPBasicAuth(user, pwd), headers=header, data=json.dumps(json_data))
     if (r.status_code != 200):
         raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
     return r
@@ -248,21 +251,21 @@ def test_del_endpoint(tenant_name, endpoint_name):
     except Exception as err:
         raise Exception(str(err))
 
-def test_post_cda(tenant_name, endpoint_name, data,file_type=CDA):
+def test_post_cda(tenant_name, endpoint_name, file,file_type=CDA):
      try:
-        post_data(tenant_name, endpoint_name, data, file_type)
+        post_data(tenant_name, endpoint_name, file, file_type)
     except Exception as err:
         raise Exception(str(err))
 
-def test_post_hl7(tenant_name, endpoint_name, data,file_type=HL7):
+def test_post_hl7(tenant_name, endpoint_name, file,file_type=HL7):
      try:
-        post_data(tenant_name, endpoint_name, data, file_type)
+        post_data(tenant_name, endpoint_name, file, file_type)
     except Exception as err:
         raise Exception(str(err))
 
-def test_post_cda(tenant_name, endpoint_name, data,file_type=FHIR):
+def test_post_cda(tenant_name, endpoint_name, file,file_type=FHIR):
      try:
-        post_data(tenant_name, endpoint_name, data, file_type)
+        post_data(tenant_name, endpoint_name, file, file_type)
     except Exception as err:
         raise Exception(str(err))
 
