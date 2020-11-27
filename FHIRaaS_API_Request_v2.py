@@ -376,6 +376,7 @@ def Test_post_data(user = user, pwd = pwd, endpoints_list=["York"], tenants_list
 
 c = 0
 #time.sleep(5)
+"""
 req = requests.get("http://"+ip+":"+port+ "/fhiraas/v1/tenants/_spec", auth=HTTPBasicAuth(user, pwd))
 
 while (req.status_code != 200 and c < 10): # Tant que la création du tenant n'est pas terminé il recommencera n fois la requête
@@ -388,7 +389,7 @@ if c >= 10:
     print(req)
     exit(84)
 print("Connection to IRIS: SUCCES")
-
+"""
 # Extraire les fichiers samples pour les tests
 
 
