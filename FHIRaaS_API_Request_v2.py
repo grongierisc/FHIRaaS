@@ -24,8 +24,8 @@ try:
     pwd =  os.environ['PASSWORD']
 
 except:
-    print("Error: Invalid USER or PASSWORD")
-    exit(84)
+    user = '_system'
+    pwd = 'SYS'
 
 #######################################################################
                 # Défintion des Fonctions  Requêtes #
@@ -102,9 +102,12 @@ def put_endpoint(tenant_name, endpoint_name):
     r = requests.put(post, auth=HTTPBasicAuth(user, pwd))
     jsonResponse = r.json()
     time.sleep(8)
-    while ((str(r.json()["status"]) != "running") and (counter < 15)): # Tant que la création du tenant n'est pas terminé il recommencera n fois la requête
+    if (str(r.json()["status"]) != "running"):
+        return r
+    r = requests.get(post, auth=HTTPBasicAuth(user, pwd))
+    while ((r.status_code != 200) and (counter < 35)): # Tant que la création du tenant n'est pas terminé il recommencera n fois la requête
         time.sleep(8)
-        r = requests.put(post, auth=HTTPBasicAuth(user, pwd))
+        r = requests.get(post, auth=HTTPBasicAuth(user, pwd))
         counter+=1
     if (counter >= 15):
         raise Exception("  --> " + post + "\n  --> Error: Time out")
@@ -124,7 +127,7 @@ def get_endpoint(tenant_name, endpoint_name):
     counter = 0
     post = "http://"+ip+":"+port+ "/fhiraas/v1/tenants" + '/' + tenant_name + '/' + endpoint_name
     r = requests.get(post, auth=HTTPBasicAuth(user, pwd))
-    while ((str(r.json()["status"]) != "complete") and (counter < 15)): # Tant que la création du tenant n'est pas terminé il recommencera n fois la requête
+    while ((str(r.json()["status"]) != "complete") and (counter < 35)): # Tant que la création du tenant n'est pas terminé il recommencera n fois la requête
         time.sleep(8)
         r = requests.get(post, auth=HTTPBasicAuth(user, pwd))
         counter+=1
@@ -147,27 +150,20 @@ def del_endpoint(tenant_name, endpoint_name):
     return r
 
 def post_data(tenant_name, endpoint_name, file, file_type):
+    data = open(file,'rb').read()
     post = "http://"+ip+":"+port+"/v1/fhiraas/"+tenant_name+"/"+file_type+"/"+endpoint_name+"/"
-    data
     if file_type == CDA:
         header = {'Content-Type':'text/xml'}
-        with open(file) as xml:
-            data = xml
     elif file_type == HL7:
         header = {'Content-Type':'text/plain'}
-        with open(file) as txt:
-            data = txt
     elif file_type == FHIR:
-        header = {'Content-Type': 'application/json'}
-        with open(file) as json_file:
-            json_data = json.load(json_file)
-        data = json.dumps(json_data)
+        header = {'Content-Type': 'application/fhir+json; charset=UTF-8'}
     else:
-        raise Exception("  --> " + post + "\n  --> Error: hl7, cda, fhir" + " but got " + str(r.status_code))
+        raise Exception("  --> " + post + "\n  --> Error: hl7, cda, fhir" + " but got " + str('none'))
     r = requests.post(post, auth=HTTPBasicAuth(user, pwd), headers=header, data=data)
+    print(r.status_code)
     if (r.status_code != 200):
         raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
-    return r
 
 #####################################################################
                         # Sous-Fonction TEST #
@@ -362,11 +358,22 @@ def Test_Basic(user = user, pwd = pwd, endpoints_list=["York", "Paris", "London"
 ########################################################
             # Tester le post de fichiers #
 ########################################################
-def Test_post_data(user = user, pwd = pwd, endpoints_list=["York"], tenants_list=["Lorem"], path_to_sample="./FHIRaaS/misc/samples/"):
+def Test_post_data(user = user, pwd = pwd, endpoints_list=["endpoint"], tenants_list=["Lorem"], path_to_sample="./FHIRaaS/misc/samples/"):
     try:
-        test_put_tenant(tenants_list[0])
-        test_put_endpoint(tenants_list[0], endpoints_list[0])
+        # print("PUT TENANT LOREM")
+        # test_put_tenant(tenants_list[0])
+        # print("PUT ENDOOINT LOREM/YORK")
+        # put_endpoint(tenants_list[0], endpoints_list[0])
+        # print("GET ENDPOINT LOREM/YORK")
+        # get_endpoint(tenants_list[0], endpoints_list[0])
+        print("POST DATA FHIR LOREM/ENDPOINT")
         test_post_fhir(tenants_list[0], endpoints_list[0], path_to_sample+"patient_bundle.json", FHIR)
+        print("POST DATA HL7 LOREM/ENDPOINT")
+        test_post_hl7(tenants_list[0], endpoints_list[0], path_to_sample+"ADT_2-6_A01.txt", HL7)
+        print("POST DATA CDA LOREM/ENDPOINT")
+        test_post_cda(tenants_list[0], endpoints_list[0], path_to_sample+"Arturo_Delvalle_76a9851b-9015-4c1e-961c-eb3f5192663f.xml", CDA)
+        # del_endpoint(tenants_list[0], endpoints_list[0])
+        # del_tenant(tenants_list[0])
     except Exception as err:
         print(str(err))
     return 0
@@ -398,6 +405,7 @@ try:
     # Execute la Test_Basic
     #s = Test_Basic()
     s = Test_post_data()
+    #post_data("Lorem", "York", )
 except Exception as err:
     print(str(err))
 
