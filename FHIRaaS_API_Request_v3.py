@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # Importation des modules
-from FHIRaaS_API_Request_v2 import test_put_tenant
 from FHIRaaS_Module.fhiraas_module import FHIRaaS_Module as FHIRaaS
 import json
 import os
@@ -48,35 +47,35 @@ def test_putTenant(tenant=tenant):
     try:
         fhiraas.putTenant(tenant)
     except Exception as err:
-        raise(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction GET tenant
 def test_getTenant(tenant=tenant):
     try:
         fhiraas.getTenant(tenant)
     except Exception as err:
-        raise(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction GET spec
 def test_getSpec():
     try:
         fhiraas.getSpec()
     except Exception as err:
-        raise(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction DEL tenant
 def test_delTenant(tenant=tenant):
     try:
         fhiraas.delTenant(tenant)
     except Exception as err:
-        raise Exception(str(err))
+        raise (Exception(str(err)))
 
 # Test la fonction PUT tenant
 def test_putTenant(tenant=tenant):
     try:
         fhiraas.putTenant(tenant)
     except Exception as err:
-        raise(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction GET all tenant
 def test_getTenants(tenants_list=tenants_list):
@@ -87,6 +86,8 @@ def test_getTenants(tenants_list=tenants_list):
         fhiraas.getTenants()
         for tenants in tenants_list:
             fhiraas.delTenant(tenants)
+    except Exception as err:
+        raise(Exception(str(err)))
 
 # Test la fonction PUT tenant/endpoint
 def test_putEndpoint(tenant=tenant,endpoint="lorem"):
@@ -95,42 +96,42 @@ def test_putEndpoint(tenant=tenant,endpoint="lorem"):
         time.sleep(10)
         fhiraas.putEndpoint(tenant, endpoint)
     except Exception as err:
-        raise Exception(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction GET tenant/endpoint
 def test_getEndpoint(tenant=tenant,endpoint=endpoint):
     try:
         fhiraas.getEndpoint(tenant, endpoint)
     except Exception as err:
-        raise Exception(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction DEL tenant/endpoint
 def test_delEndpoint(tenant, endpoint):
     try:
         fhiraas.delEndpoint(tenant, endpoint)
     except Exception as err:
-        raise Exception(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction POST patient (CDA) in tenant/endpoint
 def test_postCDA(tenant, endpoint, file,file_type=file_type.CDA):
     try:
         fhiraas.postPatient(file, tenant, endpoint, file_type)
     except Exception as err:
-        raise Exception(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction POST patient (HL7) in tenant/endpoint
 def test_postHL7(tenant, endpoint, file,file_type=file_type.HL7):
     try:
         fhiraas.postPatient(file, tenant, endpoint, file_type)
     except Exception as err:
-        raise Exception(str(err))
+        raise(Exception(str(err)))
 
 # Test la fonction POST patient (FHIR) in tenant/endpoint
 def test_postFHIR(tenant, endpoint, file,file_type=file_type.FHIR):
     try:
         fhiraas.postPatient(file, tenant, endpoint, file_type)
     except Exception as err:
-        raise Exception(str(err))
+        raise(Exception(str(err)))
 
 def BasicTest(tenant=tenant, endpoint=endpoint):
     print("Lancement des Tests Basiques")
@@ -189,11 +190,12 @@ def BasicTest(tenant=tenant, endpoint=endpoint):
         nb_test_F+=1
     try:
         time.sleep(15)
-        test_delEndpoint(endpoint="lorem")
+        test_delEndpoint(tenant, endpoint="lorem")
         nb_tests_S+=1
+        fhiraas.delTenant("Test")
         print("SUCCESS || SINGLE || DEL || ENDPOINT ")
     except Exception as err:
-        print("FAILURE || SINGLE || DEL || ENDPOINT " + str(err))
+        print("FAILURE || SINGLE || DEL || ENDPOINT \n" + str(err))
         nb_test_F+=1
 
     print("\nNumber of tests : " + str(nb_tests_S + nb_test_F))
@@ -203,3 +205,9 @@ def BasicTest(tenant=tenant, endpoint=endpoint):
         return 84
     else:
         return 0
+
+def main():
+    return (BasicTest())
+
+if __name__ == "__main__":
+    main()

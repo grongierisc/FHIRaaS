@@ -112,6 +112,12 @@ class FHIRaaS_Module():
         """
         execute the request GET the swagger
         """
+        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants" + '/' + "_spec"
+        r = requests.get(post, auth=HTTPBasicAuth(self.__user, self.__pwd))
+        if (r.status_code != 200):
+            raise Exception(
+                "  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
+        return r
 
     def putTenant(self, tenant_name):
         """
@@ -153,7 +159,7 @@ class FHIRaaS_Module():
         """
         execute the request GET all tenants
         """
-        post = self._getBaseURL()+"tenants"
+        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants"
         r = requests.get(post, auth=HTTPBasicAuth(self.__user, self.__pwd))
         if (r.status_code != 200):
             raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
@@ -175,10 +181,12 @@ class FHIRaaS_Module():
         """
         counter = 0
         self._setEndpoint(endpoint_name)
-        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants" + '/' + tenant_name + '/' + self._getEndpoint()
+        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants" + '/' + tenant_name + '/' + endpoint_name
         r = requests.put(post, auth=HTTPBasicAuth(self.__user, self.__pwd))
+        if (r.status_code != 200):
+            raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
         jsonResponse = r.json()
-        if (jsonResponse["status"] != "running"):
+        if (jsonResponse["status"] != "running" and jsonResponse["status"] != "pending"):
             raise Exception("  --> " + post + "\n  --> Error: Expected running " + " but got " + str(jsonResponse["status"]))
         time.sleep(8)  # Dire pourquoi on sleep
         return r
@@ -188,8 +196,10 @@ class FHIRaaS_Module():
         execute the request GET a endpoint
         """
         counter = 0
-        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants" + '/' + tenant_name + '/' + self._getEndpoint()
+        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants" + '/' + tenant_name + '/' + endpoint_name
         r = requests.get(post, auth=HTTPBasicAuth(self.__user, self.__pwd))
+        if (r.status_code != 200):
+            raise Exception("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
         while ((str(r.json()["status"]) != "complete") and (counter < 35)): # Tant que la création du tenant n'est pas terminé il recommencera n fois la requête
             time.sleep(8)
             r = requests.get(post, auth=HTTPBasicAuth(self.__user, self.__pwd))
@@ -207,7 +217,7 @@ class FHIRaaS_Module():
         """
         execute the request DEL a endpoint
         """
-        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants" + '/' + tenant_name + '/' + self._getEndpoint()
+        post = self._getBaseURL()+'/fhiraas/v1/'+"tenants" + '/' + tenant_name + '/' + endpoint_name
         self._setEndpoint("endpoint")
         r = requests.delete(post, auth=HTTPBasicAuth(self.__user, self.__pwd))
         if (r.status_code != 200):
