@@ -40,4 +40,4 @@ stages:
       displayName: Execution des Tests
       inputs:
         scriptSource: 'filepath'
-        scriptPath: './FHIRaaS_API_Request_v2.py'
+        scriptPath: './FHIRaaS_API_Request_v3.py'

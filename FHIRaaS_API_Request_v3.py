@@ -38,6 +38,10 @@ file_type = FileType()
 fhiraas = FHIRaaS(ip=ip,port=port,user=user,pwd=pwd)
 
 
+##########################
+#    Fonction de Test    # 
+##########################
+
 # Test la fonction PUT tenant
 # Retourne le message d'erreur associé à l'erreur rencontré
 def test_putTenant(tenant=tenant):
