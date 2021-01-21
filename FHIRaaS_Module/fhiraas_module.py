@@ -278,3 +278,23 @@ class FHIRaaS_Module():
             return (0)
         else: # Si la reqête fonctionne le fichier sera déplacé dans le out_directory
             return (1)
+
+    def getRessource(self, RessourceType, tenant_name, endpoint_name, file_type=FHIR, id=""):
+        """
+        execute the request POST a patient
+        """
+        post = self._getBaseURL()+'/v1/fhiraas/' + tenant_name+"/"+file_type+"/"+endpoint_name+"/"+RessourceType+'/' # création de l'url pour la requête
+        if id == "":
+            post = post+id
+        if file_type == CDA: # si le fichier est un CDA sélectionne le header approprié au CDA
+            header = {'Content-Type':'text/xml'} # si le fichier est un HL7 sélectionne le header approprié au HL7
+        elif file_type == HL7:
+            header = {'Content-Type':'text/plain'} 
+        elif file_type == FHIR: # si le fichier est un FHIR sélectionne le header approprié au FHIR
+            header = {'Content-Type': 'application/fhir+json; charset=UTF-8'}
+        else: # En cas d'erreur le programme quitte
+            raise Exception("  --> " + post + "\n  --> Error: hl7, cda, fhir" + " but got " + str('none'))
+        r = requests.get(post, auth=HTTPBasicAuth(self.__user, self.__pwd), headers=header)
+        if (r.status_code != 200): # Si la requête échoue le programme print l'erreur et passera au fichier suivant
+            print("  --> " + post + "\n  --> Error: Expected 200" + " but got " + str(r.status_code))
+        return(r)
