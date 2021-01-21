@@ -182,6 +182,7 @@ def BasicTest(tenant=tenant, endpoint=endpoint):
         print("FAILURE || SINGLE || PUT || ENDPOINT \n" + str(err))
         nb_test_F+=1
     try:
+        time.sleep(15)
         test_getEndpoint()
         nb_tests_S+=1
         print("SUCCESS || SINGLE || GET || ENDPOINT ")
@@ -192,11 +193,11 @@ def BasicTest(tenant=tenant, endpoint=endpoint):
         time.sleep(15)
         test_delEndpoint(tenant, endpoint="lorem")
         nb_tests_S+=1
-        fhiraas.delTenant("Test")
         print("SUCCESS || SINGLE || DEL || ENDPOINT ")
     except Exception as err:
         print("FAILURE || SINGLE || DEL || ENDPOINT \n" + str(err))
         nb_test_F+=1
+    fhiraas.delTenant("Test")
 
     print("\nNumber of tests : " + str(nb_tests_S + nb_test_F))
     print("Number of tests passed : " + str(nb_tests_S))
