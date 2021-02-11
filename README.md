@@ -34,7 +34,8 @@ All can be done throw REST endpoint defined in misc/iris-api-operations.json
 4. Tenant inforamtion : GET http://localhost:52773/fhiraas/v1/tenants/{tenantName}
 5. The endpoint of the tenant is here : http://localhost:52773/v1/fhiraas/{tenantName}/fhir/r4/endpoint
 6. Post patient in a endpoint : POST http://localhost:52773/v1/fhiraas/{tenantName}/{Format}/{endpointName}/ 
-7. {Format} = For HL7 -> hl7 | For CDA -> cda | For FHIR -> fhir/r4
+7. {Format} = For HL7 &rarr; hl7 | For CDA &rarr; cda | For FHIR &rarr; fhir/r4
+8. Update a patient in a tenant : PUT http://localhost:52773/v1/fhiraas/{tenantName}/{Format}/{endpointName}/Patient/{PatientID} 
 
 # Build 
 Run the server
