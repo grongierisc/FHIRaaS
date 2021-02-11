@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
-- dev
+- Dev
 
 resources:
 - repo: self
@@ -40,4 +40,4 @@ stages:
       displayName: Execution des Tests
       inputs:
         scriptSource: 'filepath'
-        scriptPath: './FHIRaaS_API_Request_v2.py'
+        scriptPath: './FHIRaaS_API_Request_v3.py'
