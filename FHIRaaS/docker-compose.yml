@@ -11,7 +11,7 @@ services:
       - 52773:52773
       - 53773
     environment: 
-      ISC_DATA_DIRECTORY: /external/conf # Backup for the iris session
+      ISC_DATA_DIRECTORY: /external/conf # Backup pour le container IRIS
     volumes:
       - ./:/irisdev/app 
       - ./share/:/tmp/share # Point d'entrée local pour les flux
