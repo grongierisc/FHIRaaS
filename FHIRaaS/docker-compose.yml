@@ -11,11 +11,11 @@ services:
       - 52773:52773
       - 53773
     environment: 
-      ISC_DATA_DIRECTORY: /external/conf
+      ISC_DATA_DIRECTORY: /external/conf # Backup for the iris session
     volumes:
-      - ./:/irisdev/app
-      - ./share/:/tmp/share
-      - fhiraas_external:/external
+      - ./:/irisdev/app 
+      - ./share/:/tmp/share # Point d'entrée local pour les flux
+      - fhiraas_external:/external # dossier de backup pour la session IRIS
   proxy:
     build:
       context: https/.
