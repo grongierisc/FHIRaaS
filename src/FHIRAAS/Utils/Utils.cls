@@ -172,6 +172,8 @@ ClassMethod GetEndpointsByTenant(tenantId As %String) As %DynamicObject
     
     set ptr = 0
     while $listnext(list, ptr, entry) {
+		set url = $listget(entry, 1)
+		if url [ "svc:" continue //Endpoints without a URL aren't active, in process of being generated
         set endpoint = ##class(HS.FHIRServer.Config.RestHandler).SerializeEndpoint($listget(entry, 1))
         if endpoint '= "" {
 			set endpoint."interop_config" = ##class(FHIRAAS.Utils.Utils).GetInterfaceMaps()
@@ -264,14 +266,14 @@ ClassMethod JobRecordToJson(jobRecord As HSMOD.REST.Async.JobRecord) As %Dynamic
 	return json
 }
 
+/// pMetadataSetKey = HL7v40
+/// pStrategyClass = HS.FHIRServer.Storage.Json.InteractionsStrategy
+/// pAppKey = URL path
+/// pResource = authenticated or not
 ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMetadataSetKey As %String, pOAuthClientName As %String = "", pResource As %String)
 {
 	try {
-		// Ensure we can get a metadataSet
-		Set metadataSet = ##class(HS.FHIRServer.FHIRMetadataSet).%OpenId(pMetadataSetKey)
-		if '$isobject(metadataSet) {
-			$$$ThrowFHIR($$$GeneralError, "Metadata set does not exist '" _ pMetadataSetKey _ "'")
-		}
+		
 		Set strategyKey = $parameter(pStrategyClass, "StrategyKey")
 		
 		// Validate form if App Key
@@ -282,14 +284,9 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		if ##class(HS.FHIRServer.ServiceAdmin).EndpointExists(pAppKey) {
 			$$$ThrowFHIR($$$GeneralError, "There is already an instance installed for endpoint " _ pAppKey)
 		}
-		
-		//Only build metadata globals if they don't exist. If a different endpoint is also using
-		//this metadata set, we don't want to change that endpoint's behavior if the metadata has
-		//changed.
-		if '$data($$$FSMetaGlobal(metadataSet.Key)) {
-			w "Loading Metadata into Globals",!
-			Do ##class(HS.FHIRServer.Tools.FHIRMetadataSetLoader).BuildGlobals(metadataSet.Key)
-		}
+
+		Set strategyKey = ##class(HS.FHIRServer.ServiceAdmin).GetStrategyKeyFromClass(pStrategyClass)
+		Set repoId = ##class(HS.FHIRServer.API.RepoManager).CreateRepo(strategyKey,1)
 
 		// Create the CSP Application
 		Set tNS = $Namespace
@@ -342,10 +339,16 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		}
 		$$$ThrowOnError( restConfigObj.%Save() )
 		
+		#dim metaAPI as HS.FHIRMeta.API = ##class(HS.FHIRMeta.API).getInstance("hl7.fhir.r4.core@4.0.1")
+		// Get the actual "list" form in case the argument was a legacy "popular name"
+		Set pPackageList = metaAPI.PackageList
 		
 		#dim serviceInstance as HS.FHIRServer.ServiceInstance
 		#dim strategy as HS.FHIRServer.API.InteractionsStrategy
-		Set serviceInstance = ##class(HS.FHIRServer.ServiceInstance).NewInstance(pStrategyClass, metadataSet.Key)
+
+		Set repoManager = ##class(HS.FHIRServer.API.RepoManager).getInstance(repoId)
+		// Create the new ServiceInstance object for this service
+		Set serviceInstance = repoManager.AddService(pPackageList)
 		Set strategy = serviceInstance.CreateStrategy()
 
 
@@ -354,8 +357,8 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		
 		Set configData.DebugMode = 0
 		Set:($g(pResource)="") configData.DebugMode = 4
-		Set configData.FHIRVersion = metadataSet.FHIRVersion
-		Set configData.FHIRMetadataSet = metadataSet.Key
+		Set configData.FHIRVersion = metaAPI.FHIRVersion
+		Set configData.FHIRMetadataSet = $LTS(pPackageList)
 		Set configData.InteractionsStrategyClass = pStrategyClass
 		
 		// Save an initial Configuration Object

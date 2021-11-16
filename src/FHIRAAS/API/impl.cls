@@ -17,11 +17,16 @@ ClassMethod getTenants() As %DynamicObject
     #dim dyna as %DynamicArray
     set dyna = []
 
-    set tTenant = ""
-    While $order(^%SYS("HealthShare","Instances",tTenant))'="" {
-        set tTenant = $order(^%SYS("HealthShare","Instances",tTenant))
-        if (tTenant'="FHIRAAS") {
-            do dyna.%Push(##class(FHIRAAS.Utils.Utils).GetEndpointsByTenant(tTenant))
+    if $Roles '[ "%All" {
+        do dyna.%Push(##class(FHIRAAS.Utils.Utils).GetEndpointsByTenant($Namespace))
+    }
+    Else {
+        set tTenant = ""
+        While $order(^%SYS("HealthShare","Instances",tTenant))'="" {
+            set tTenant = $order(^%SYS("HealthShare","Instances",tTenant))
+            if (tTenant'="FHIRAAS") {
+                do dyna.%Push(##class(FHIRAAS.Utils.Utils).GetEndpointsByTenant(tTenant))
+            }
         }
     }
 
@@ -295,9 +300,6 @@ ClassMethod putEndpoint(tenantId As %String, endpointId As %String, tenantInform
 
     // Install elements that are required for a FHIR-enabled namespace
     Do ##class(HS.FHIRServer.Installer).InstallNamespace()
-
-    //Install Ui
-    do ##class(FHIRAAS.Utils.Utils).InstallUi(tenantId,endpointId)
 
     //Init default interop
     $$$ThrowOnError(##class(FHIRAAS.Utils.Interop).Add(endpointId))
