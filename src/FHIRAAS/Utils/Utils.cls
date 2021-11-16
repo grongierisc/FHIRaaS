@@ -1,4 +1,4 @@
-Include (HS.HC, HS.HC.Invoke, HS.FHIRServer, HSMOD.REST.Async)
+Include (HS.HC, HS.FHIRServer, HSMOD.REST.Async)
 
 Class FHIRAAS.Utils.Utils
 {
@@ -373,7 +373,6 @@ ClassMethod InstallInstance(pAppKey As %String, pStrategyClass As %String, pMeta
 		throw ex
 	}
 	// Success, Commit any changes
-	
 }
 
 ClassMethod ReturnPendingEndpoints(clearCompleted As %Boolean, name As %String = "", interactionsStrategyClass As %String = "", metadataSet As %String = "") As %DynamicArray
